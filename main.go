@@ -1,8 +1,9 @@
 package main
 
-import "fmt"
+import "github.com/astaxie/beego"
 
 func main() {
 	//log.Fatal(http.ListenAndServe(":8080", nil))
-	fmt.Println("hello world")
+	//fmt.Println("hello world")
+	beego.Run()
 }
