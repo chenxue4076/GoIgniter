@@ -1,23 +1,21 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
-	"html/template"
-)
+		"html/template"
+	)
 
 type UserController struct {
-	beego.Controller
+	BaseController
+	//InitDefault( *BaseController)
 }
 
-func initDefault(c *UserController)  {
-	c.TplExt = "html"
+func (c *UserController) Prepare() {
+	c.InitDefault()
 }
 
 func (c *UserController) LoginForm() {
-	initDefault(c)
 	c.Data["XsrfData"] = template.HTML(c.XSRFFormHTML())
-
-	c.TplName = "user/login"
+	//c.TplExt = "html"
 }
 
 func (c *UserController) LoginPost() {
