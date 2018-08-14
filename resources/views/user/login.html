@@ -1,0 +1,34 @@
+<form class="form-signin" role="form" method="POST" action="{{ urlfor "UserController.LoginPost" }}">
+    {{ .XsrfData}}
+    <div class="form-label-group">
+        <h2 class="text-center">{{ i18n .Lang "common.siteName"}}</h2>
+    </div>
+    <div class="form-label-group">
+        <input id="inputUserName" type="text" class="form-control" name="username" value="" placeholder="{{ i18n .Lang "user.nameOrEmail" }}" />
+        <label for="inputUserName">{{ i18n .Lang "user.nameOrEmail" }}</label>
+    </div>
+
+    <div class="form-label-group">
+        <input id="inputPassword" type="password" class="form-control" name="password" placeholder="{{ i18n .Lang "user.password"}}">
+        <label for="inputPassword">{{ i18n .Lang "user.password"}}</label>
+    </div>
+
+    <div class="checkbox mb-3">
+        <label>
+            <input type="checkbox" name="remember" value="yes"> {{ i18n .Lang "user.rememberMe"}}
+        </label>
+    </div>
+
+    <div class="form-label-group">
+        <button type="submit" class="btn btn-primary btn-block">{{ i18n .Lang "user.login"}}</button>
+    </div>
+
+    <div class="text-right">
+        <a href="" class="btn btn-link">{{ i18n .Lang "user.register"}}</a>
+        <a class="btn btn-link" href="">{{ i18n .Lang "user.forgetPassword"}}</a>
+    </div>
+
+    <div class="text-center">
+        {{ i18n .Lang "common.siteCopy" | html }} <a class="btn btn-light" href="http://www.miibeian.gov.cn/" target="_blank">{{ i18n .Lang "common.siteRecord"}}</a>
+    </div>
+</form>
