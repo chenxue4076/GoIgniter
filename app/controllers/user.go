@@ -17,11 +17,12 @@ func (c *UserController) Login() {
 		username := c.Input().Get("username")
 		password := c.Input().Get("password")
 		fmt.Println("username:", username, " password:", password)
-		return
+		//return
 	}
-	c.LayoutSections["HeaderMeta"] = "user/headermeta.html"
-	c.LayoutSections["HtmlHead"] = ""
+	//c.LayoutSections["HeaderMeta"] = "user/headermeta.html"
+	//c.LayoutSections["HtmlHead"] = ""
 	c.LayoutSections["HtmlFoot"] = ""
+	//c.LayoutSections["Scripts"] = "user/scripts.html"
 }
 
 /*func (c *UserController) LoginPost() {

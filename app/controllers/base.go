@@ -21,14 +21,17 @@ type BaseController struct {
 func (c *BaseController) Prepare()  {
 	//page params
 	c.TplExt = "html"
-	controller, action := c.GetControllerAndAction()
-	c.TplName = strings.Replace(strings.ToLower(controller), "controller", "", -1) + "/" + strings.ToLower(action) + "." +  c.TplExt
+	controllerPre, actionPre := c.GetControllerAndAction()
+	controller := strings.Replace(strings.ToLower(controllerPre), "controller", "", -1)
+	action := strings.ToLower(actionPre)
+	c.TplName = controller + "/" + action + "." +  c.TplExt
 	c.Layout = "layout/common."+c.TplExt
+
 	c.LayoutSections = make(map[string]string)
-	c.LayoutSections["HeaderMeta"] = ""
-	c.LayoutSections["HtmlHead"] = ""
-	c.LayoutSections["HtmlFoot"] = "layout/footer."+c.TplExt
-	c.LayoutSections["Scripts"] = ""
+	c.LayoutSections["HeaderMeta"] = controller + "/headermeta."+c.TplExt
+	c.LayoutSections["HtmlHead"] = controller + "/header."+c.TplExt
+	c.LayoutSections["HtmlFoot"] = controller + "/footer."+c.TplExt
+	c.LayoutSections["Scripts"] = controller + "/scripts."+c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
 
