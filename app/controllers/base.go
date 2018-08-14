@@ -28,10 +28,10 @@ func (c *BaseController) Prepare()  {
 	c.Layout = "layout/common."+c.TplExt
 
 	c.LayoutSections = make(map[string]string)
-	c.LayoutSections["HeaderMeta"] = controller + "/headermeta."+c.TplExt
-	c.LayoutSections["HtmlHead"] = controller + "/header."+c.TplExt
-	c.LayoutSections["HtmlFoot"] = controller + "/footer."+c.TplExt
-	c.LayoutSections["Scripts"] = controller + "/scripts."+c.TplExt
+	c.LayoutSections["HeaderMeta"] = controller + "/layout_meta."+c.TplExt
+	c.LayoutSections["HtmlHead"] = controller + "/layout_header."+c.TplExt
+	c.LayoutSections["HtmlFoot"] = controller + "/layout_footer."+c.TplExt
+	c.LayoutSections["Scripts"] = controller + "/layout_scripts."+c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
 
