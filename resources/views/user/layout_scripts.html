@@ -1,0 +1,46 @@
+<script>
+    $(document).ready(function () {
+        if( $("#btnLoginSubmit") ) {    //Login Ajax
+            $("input[name='username']").on('keyup', function () {
+                var username = $.trim($(this).val());
+                if( username == '') {
+                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                } else {
+                    show_input_default("input[name='username']", '');
+                }
+            });
+            $("input[name='password']").on('keyup', function () {
+                var password = $.trim($(this).val());
+                if( password == '') {
+                    show_input_error("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                } else {
+                    show_input_default("input[name='password']", '');
+                }
+            });
+
+            $("#btnLoginSubmit").on('click', function () {
+                var username = $.trim($("input[name='username']").val());
+                var password = $.trim($("input[name='password']").val());
+                if( username == '') {
+                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                    return false;
+                }
+                if( password == '') {
+                    show_input_error("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    return false;
+                }
+                $(this).html('{{i18n .Lang "user.logging"}}').attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
+                $.post($("#formLogin").attr("action"), $("#formLogin").serialize(), function (data) {
+                    if( data.Err) {
+                        $("#btnLoginSubmit").html('{{i18n .Lang "user.login"}}').removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
+                        show_input_error("input[name='"+data.Result.Key+"']", data.Result.Message);
+                        return false;
+                    }
+                    $("#btnLoginSubmit").html('{{i18n .Lang "user.loginSuccess"}}').removeClass("btn-secondary").addClass("btn-success");
+                    window.location.href = data.Redirect;
+                }, "json");
+                return false;
+            });
+        }
+    });
+</script>
