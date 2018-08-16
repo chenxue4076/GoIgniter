@@ -17,3 +17,17 @@ func init()  {
 	orm.SetMaxOpenConns("default", 30)
 	//orm.DefaultTimeLoc
 }
+
+func DbError(err error) string {
+	var result string
+	switch err {
+	case orm.ErrNoRows:
+		result = "common.ormErrNoRows"
+	case orm.ErrMissPK:
+
+	default:
+		result = err.Error()
+	}
+
+	return result
+}

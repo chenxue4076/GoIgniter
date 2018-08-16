@@ -47,14 +47,17 @@ func (c *UserController) Login() {
 		} else {
 			//TODO login action
 			db := new(services.WpUsersService)
-			hasUser := db.LoginCheck(username, password)
-			if hasUser {
-				fmt.Println("查询到了")
+			err := db.LoginCheck(username, password)
+			var result JsonOut
+			if err != nil {
+				fmt.Println("no info")
+				result = JsonOut{true, JsonMessage{err.Error(), "username"}, ""}
 			} else {
-				fmt.Println("查询不到呢")
+				fmt.Println("has info")
+				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), ""}, refer}
 			}
 			if isAjax {
-				c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), ""}, refer}
+				c.Data["json"] = result
 				c.ServeJSON()
 			}
 			//http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)

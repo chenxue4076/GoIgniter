@@ -2,8 +2,8 @@ package models
 
 import (
 	"time"
-	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql" // import your used driver
+	"github.com/astaxie/beego/orm"
 )
 
 type WpUsers struct {
@@ -17,13 +17,13 @@ type WpUsers struct {
 	UserActivationKey	string
 	UserStatus			int				`orm:"default(0)"`
 	DisplayName			string
-	Spam				int8			`orm:"default(0)"`
-	Deleted				int8			`orm:"default(0)"`
+	//Spam				int8			`orm:"default(0)"`
+	//Deleted				int8			`orm:"default(0)"`
 }
 
 func init()  {
 	//register models
-	//orm.RegisterModel(new(WpUsers))
+	orm.RegisterModel(new(WpUsers))
 	//orm.RegisterModelWithPrefix(beego.AppConfig.String("MysqlPrefix"),new(WpUsers))
-	orm.RegisterModelWithPrefix("wp_",new(WpUsers))
+	//orm.RegisterModelWithPrefix("wp_",new(WpUsers))
 }
