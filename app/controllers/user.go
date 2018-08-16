@@ -5,6 +5,8 @@ import (
 	"github.com/astaxie/beego/validation"
 	"log"
 	"strings"
+	"windigniter.com/app/services"
+	"fmt"
 )
 
 type UserController struct {
@@ -44,11 +46,18 @@ func (c *UserController) Login() {
 			c.Data["Error"] = valid.Errors
 		} else {
 			//TODO login action
+			db := new(services.WpUsersService)
+			hasUser := db.LoginCheck(username, password)
+			if hasUser {
+				fmt.Println("查询到了")
+			} else {
+				fmt.Println("查询不到呢")
+			}
 			if isAjax {
 				c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), ""}, refer}
 				c.ServeJSON()
 			}
-			http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+			//http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
 		}
 		//if len(username) < 6
 	}
