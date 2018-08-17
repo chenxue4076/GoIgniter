@@ -27,6 +27,16 @@ type JsonMessage struct {
 	Message, Key string
 }
 
+type SessionUser struct {
+	Uid				int64
+	UserLogin		string
+	UserNicename	string
+	UserEmail		string
+	UserRegistered	string
+	DisplayName		string
+}
+
+
 var langs = []string {"zh-CN", "en-US"}
 
 // all controllers init
@@ -57,6 +67,11 @@ func (c *BaseController) Prepare()  {
 	c.Data["XsrfData"] = template.HTML(c.XSRFFormHTML())
 	if c.Ctx.Request.Method == http.MethodPost {	//XSRF filter
 		c.CheckXSRFCookie()
+	}
+
+	//if login
+	if c.GetSession("Uid") != nil {
+		c.Data["User"] = SessionUser{c.GetSession("Uid").(int64), c.GetSession("UserLogin").(string), c.GetSession("UserNicename").(string), c.GetSession("UserEmail").(string), c.GetSession("UserRegistered").(string), c.GetSession("DisplayName").(string)}
 	}
 }
 

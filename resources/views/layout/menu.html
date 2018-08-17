@@ -1,0 +1,21 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">{{i18n .Lang "common.siteName" }}</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="{{urlfor "MainController.Index"}}">{{i18n .Lang "common.Home" }} <span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<ul class="nav">
+    {{if .User}}
+        <li>{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} {{ (.User.UserRegistered)}}</li>
+    {{else}}
+        <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>
+    {{end}}
+</ul>

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"windigniter.com/app/services"
 	"fmt"
+	"reflect"
+	"github.com/astaxie/beego"
 )
 
 type UserController struct {
@@ -19,6 +21,9 @@ type UserController struct {
 }*/
 
 func (c *UserController) Login() {
+	if c.GetSession("Uid") != nil {
+		http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, beego.URLFor("MemberController.Center"), 302)
+	}
 	c.LayoutSections["HtmlFoot"] = ""
 	lang := c.CurrentLang()
 	isAjax :=c.Ctx.Input.IsAjax()
@@ -47,29 +52,41 @@ func (c *UserController) Login() {
 		} else {
 			//TODO login action
 			db := new(services.WpUsersService)
-			err := db.LoginCheck(username, password)
+			user, key, err := db.LoginCheck(username, password)
 			var result JsonOut
 			if err != nil {
 				fmt.Println("no info")
-				result = JsonOut{true, JsonMessage{err.Error(), "username"}, ""}
+				result = JsonOut{true, JsonMessage{Translate(lang, err.Error()), key}, ""}
+				e := validation.Error{Message:Translate(lang, err.Error()), Key:key}
+				c.Data["Error"] = e
 			} else {
 				fmt.Println("has info")
-				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), ""}, refer}
+				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), key}, refer}
+				//save session for user
+				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered.String(), user.DisplayName}
+				skey := reflect.TypeOf(sessionUser)
+				sValue := reflect.ValueOf(sessionUser)
+				for k := 0; k < skey.NumField(); k++ {
+					c.SetSession(skey.Field(k).Name, sValue.Field(k).Interface())
+				}
 			}
 			if isAjax {
 				c.Data["json"] = result
 				c.ServeJSON()
 			}
-			//http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+			http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
 		}
 		//if len(username) < 6
 	}
 	refer := c.GetString("refer")
 	c.Data["Title"] = Translate(lang,"user.login")
 	c.Data["Refer"] = refer
-	//c.LayoutSections["HeaderMeta"] = "user/headermeta.html"
-	//c.LayoutSections["HtmlHead"] = ""
-	//c.LayoutSections["Scripts"] = "user/scripts.html"
+}
+
+func (c *UserController) Register()  {
+	lang := c.CurrentLang()
+	//isAjax :=c.Ctx.Input.IsAjax()
+	c.Data["Title"] = Translate(lang,"user.register")
 }
 
 /*func (c *UserController) LoginPost() {

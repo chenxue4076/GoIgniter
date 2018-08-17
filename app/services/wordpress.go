@@ -6,6 +6,7 @@ import (
 	"windigniter.com/app/models"
 	"fmt"
 	"regexp"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type WpUsersService struct {
@@ -19,36 +20,36 @@ func init()  {
 	o.Using("default")
 }
 
-func (s *WpUsersService) LoginCheck(username, password string) error {
+func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUsers, key string, err error) {
 	//\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*
 	match, _ := regexp.MatchString(`\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`, username)
-	var user models.WpUsers
+	//var user models.WpUsers
+	//var err error
 	if match {
-		fmt.Println("col email")
 		user = models.WpUsers{UserEmail:username}
+		err = o.Read(&user, "UserEmail")
 	} else {
-		fmt.Println("col name")
 		user = models.WpUsers{UserLogin:username}
+		err = o.Read(&user, "UserLogin")
 	}
-
-	err := o.Read(&user)
-	/*if err == orm.ErrNoRows {
-		fmt.Println("not found", err)
-		return false
-	} else if err == orm.ErrMissPK {
-		fmt.Println("not found key", err)
-		return false
-	} else {
-		fmt.Println("has err ?", err)
-		fmt.Println(err)
-		return true
-	}*/
 	if err != nil {
 		fmt.Println("has err ?", err)
-		return err
+		return user, "username", DbError(err)
 	} else {
+		gpwd, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
+		if e != nil {
+			fmt.Println("generate password err ?", e)
+		} else {
+			fmt.Println("generate password ", string(gpwd))
+		}
+		//verify password
+		pwderr := bcrypt.CompareHashAndPassword([]byte(user.UserPass), []byte(password))
+		if pwderr != nil {
+			fmt.Println("password err ?", pwderr)
+			return user,"password", HashError(pwderr)
+		}
 		fmt.Println(user)
-		return nil
+		return user, "username", nil
 	}
-	return nil
+	return user, "", nil
 }

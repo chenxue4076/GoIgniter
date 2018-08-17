@@ -7,6 +7,11 @@ type MemberController struct {
 }
 
 func (c *MemberController) Center() {
-	username := c.Ctx.Input.Param(":username")
-	fmt.Println(username)
+	username := c.GetSession("username")
+	uid := c.GetSession("uid")
+	fmt.Println(username, uid)
+}
+
+func (c *MemberController) Index()  {
+	
 }

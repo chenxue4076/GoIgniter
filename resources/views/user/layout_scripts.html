@@ -24,10 +24,14 @@
                 if( username == '') {
                     show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
                     return false;
+                } else {
+                    show_input_default("input[name='username']", '');
                 }
                 if( password == '') {
                     show_input_error("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
                     return false;
+                } else {
+                    show_input_default("input[name='password']", '');
                 }
                 $(this).html('{{i18n .Lang "user.logging"}}').attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
                 $.post($("#formLogin").attr("action"), $("#formLogin").serialize(), function (data) {
@@ -37,7 +41,7 @@
                         return false;
                     }
                     $("#btnLoginSubmit").html('{{i18n .Lang "user.loginSuccess"}}').removeClass("btn-secondary").addClass("btn-success");
-                    //window.location.href = data.Redirect;
+                    window.location.href = data.Redirect;
                 }, "json");
                 return false;
             });
