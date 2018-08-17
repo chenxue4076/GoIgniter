@@ -69,10 +69,18 @@ func (c *BaseController) Prepare()  {
 		c.CheckXSRFCookie()
 	}
 
-	//if login
-	if c.GetSession("Uid") != nil {
-		c.Data["User"] = SessionUser{c.GetSession("Uid").(int64), c.GetSession("UserLogin").(string), c.GetSession("UserNicename").(string), c.GetSession("UserEmail").(string), c.GetSession("UserRegistered").(string), c.GetSession("DisplayName").(string)}
+	c.Data["Refer"] = c.Ctx.Request.RequestURI
+	//TODO
+	if controller == "user" && action == "login" {
+		c.Data["Refer"] = ""
 	}
+
+
+	//if login
+	c.Data["User"] = c.GetSession("userInfo")
+	//if c.GetSession("userInfo") != nil {
+		//c.Data["User"] = SessionUser{c.GetSession("Uid").(int64), c.GetSession("UserLogin").(string), c.GetSession("UserNicename").(string), c.GetSession("UserEmail").(string), c.GetSession("UserRegistered").(string), c.GetSession("DisplayName").(string)}
+	// }
 }
 
 func (c *BaseController) CurrentLang() string {

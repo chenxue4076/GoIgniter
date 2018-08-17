@@ -7,7 +7,6 @@ import (
 	"strings"
 	"windigniter.com/app/services"
 	"fmt"
-	"reflect"
 	"github.com/astaxie/beego"
 )
 
@@ -21,7 +20,7 @@ type UserController struct {
 }*/
 
 func (c *UserController) Login() {
-	if c.GetSession("Uid") != nil {
+	if c.GetSession("userInfo") != nil {
 		http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, beego.URLFor("MemberController.Center"), 302)
 	}
 	c.LayoutSections["HtmlFoot"] = ""
@@ -64,11 +63,12 @@ func (c *UserController) Login() {
 				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), key}, refer}
 				//save session for user
 				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered.String(), user.DisplayName}
-				skey := reflect.TypeOf(sessionUser)
+				c.SetSession("userInfo", sessionUser)
+				/*skey := reflect.TypeOf(sessionUser)
 				sValue := reflect.ValueOf(sessionUser)
 				for k := 0; k < skey.NumField(); k++ {
 					c.SetSession(skey.Field(k).Name, sValue.Field(k).Interface())
-				}
+				}*/
 			}
 			if isAjax {
 				c.Data["json"] = result
@@ -87,6 +87,26 @@ func (c *UserController) Register()  {
 	lang := c.CurrentLang()
 	//isAjax :=c.Ctx.Input.IsAjax()
 	c.Data["Title"] = Translate(lang,"user.register")
+}
+
+func (c *UserController) Logout() {
+	isAjax :=c.Ctx.Input.IsAjax()
+	//Post Data deal
+	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
+		lang := c.CurrentLang()
+		refer := c.Input().Get("refer")
+		//清空session
+		c.DelSession("userInfo")
+		if refer == "" {
+			refer = beego.URLFor("MainController.Index")
+		}
+		if isAjax {
+			c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "user.logoutSuccess"), ""}, refer}
+			c.ServeJSON()
+		}
+		http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+	}
+	http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, beego.URLFor("MainController.Index"), 302)
 }
 
 /*func (c *UserController) LoginPost() {

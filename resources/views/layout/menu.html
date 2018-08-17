@@ -13,7 +13,14 @@
 </nav>
 <ul class="nav">
     {{if .User}}
-        <li>{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} {{ (.User.UserRegistered)}}</li>
+        <li class="nav-item">
+            <form method="post" action="{{urlfor "UserController.Logout"}}">
+                {{.XsrfData}}
+                <input type="hidden" name="refer" value="{{or .Refer (urlfor "UserController.Login")}}" />
+                <button type="submit" class="btn btn-link">{{i18n .Lang "user.logout"}}</button>
+            </form>
+        </li>
+        <li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} {{ (.User.UserRegistered)}}</li>
     {{else}}
         <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
         <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>
