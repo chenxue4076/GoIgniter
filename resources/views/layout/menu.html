@@ -20,7 +20,7 @@
                 <button type="submit" class="btn btn-link">{{i18n .Lang "user.logout"}}</button>
             </form>
         </li>
-        <li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} {{ (.User.UserRegistered)}}</li>
+        <li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} </li>
     {{else}}
         <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
         <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>

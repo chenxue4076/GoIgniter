@@ -62,7 +62,8 @@ func (c *UserController) Login() {
 				fmt.Println("has info")
 				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), key}, refer}
 				//save session for user
-				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered.String(), user.DisplayName}
+				//fmt.Println(reflect.TypeOf(user.UserRegistered), reflect.ValueOf(user.UserRegistered).Kind())
+				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered, user.DisplayName}
 				c.SetSession("userInfo", sessionUser)
 				/*skey := reflect.TypeOf(sessionUser)
 				sValue := reflect.ValueOf(sessionUser)
@@ -87,6 +88,11 @@ func (c *UserController) Register()  {
 	lang := c.CurrentLang()
 	//isAjax :=c.Ctx.Input.IsAjax()
 	c.Data["Title"] = Translate(lang,"user.register")
+}
+
+func (c *UserController) ResetPassword() {
+	lang := c.CurrentLang()
+	c.Data["Title"] = Translate(lang,"user.resetPassword")
 }
 
 func (c *UserController) Logout() {

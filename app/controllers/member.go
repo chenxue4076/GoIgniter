@@ -1,15 +1,15 @@
 package controllers
 
-import "fmt"
+import "github.com/astaxie/beego"
 
 type MemberController struct {
 	BaseController
 }
 
 func (c *MemberController) Center() {
-	username := c.GetSession("username")
-	uid := c.GetSession("uid")
-	fmt.Println(username, uid)
+	c.Data["Refer"] = beego.URLFor("UserController.Login")
+
+
 }
 
 func (c *MemberController) Index()  {

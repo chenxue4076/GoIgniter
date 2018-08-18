@@ -10,6 +10,7 @@ import (
 	"sync"
 	"net/http"
 	"html/template"
+	"time"
 )
 
 var once sync.Once
@@ -32,7 +33,7 @@ type SessionUser struct {
 	UserLogin		string
 	UserNicename	string
 	UserEmail		string
-	UserRegistered	string
+	UserRegistered	time.Time
 	DisplayName		string
 }
 
@@ -70,10 +71,10 @@ func (c *BaseController) Prepare()  {
 	}
 
 	c.Data["Refer"] = c.Ctx.Request.RequestURI
-	//TODO
-	if controller == "user" && action == "login" {
+	//TODO	 //unicode.In(action, []string{"login"})
+	/*if controller == "user" &&  action == "login" {
 		c.Data["Refer"] = ""
-	}
+	}*/
 
 
 	//if login
