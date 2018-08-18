@@ -82,6 +82,7 @@ func (c *BaseController) Prepare()  {
 	//if c.GetSession("userInfo") != nil {
 		//c.Data["User"] = SessionUser{c.GetSession("Uid").(int64), c.GetSession("UserLogin").(string), c.GetSession("UserNicename").(string), c.GetSession("UserEmail").(string), c.GetSession("UserRegistered").(string), c.GetSession("DisplayName").(string)}
 	// }
+	//fmt.Println(c.Ctx.Input.CruSession.SessionID())
 }
 
 func (c *BaseController) CurrentLang() string {

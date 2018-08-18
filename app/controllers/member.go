@@ -7,9 +7,9 @@ type MemberController struct {
 }
 
 func (c *MemberController) Center() {
+	lang := c.CurrentLang()
+	c.Data["Title"] = Translate(lang, "member.userCenter")
 	c.Data["Refer"] = beego.URLFor("UserController.Login")
-
-
 }
 
 func (c *MemberController) Index()  {

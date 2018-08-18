@@ -32,6 +32,7 @@ func (c *UserController) Login() {
 		refer := c.Input().Get("refer")
 		username := strings.TrimSpace(c.Input().Get("username"))
 		password := strings.TrimSpace(c.Input().Get("password"))
+		remember := c.Input().Get("remember")
 		valid := validation.Validation{}
 		valid.Required(username, "username").Message(Translate(lang, "user.usernameRequired"))
 		valid.Required(password, "password").Message(Translate(lang, "user.passwordRequired"))
@@ -65,6 +66,9 @@ func (c *UserController) Login() {
 				//fmt.Println(reflect.TypeOf(user.UserRegistered), reflect.ValueOf(user.UserRegistered).Kind())
 				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered, user.DisplayName}
 				c.SetSession("userInfo", sessionUser)
+				if remember != "" {
+					c.Ctx.SetCookie(beego.AppConfig.String("SessionName"), c.Ctx.Input.CruSession.SessionID(), 30*24*3600)	//存储30天
+				}
 				/*skey := reflect.TypeOf(sessionUser)
 				sValue := reflect.ValueOf(sessionUser)
 				for k := 0; k < skey.NumField(); k++ {
@@ -88,6 +92,11 @@ func (c *UserController) Register()  {
 	lang := c.CurrentLang()
 	//isAjax :=c.Ctx.Input.IsAjax()
 	c.Data["Title"] = Translate(lang,"user.register")
+}
+
+func (c *UserController) LostPassword() {
+	lang := c.CurrentLang()
+	c.Data["Title"] = Translate(lang,"user.lostPassword")
 }
 
 func (c *UserController) ResetPassword() {
