@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"regexp"
 	"golang.org/x/crypto/bcrypt"
+	"errors"
 )
 
 type WpUsersService struct {
@@ -36,12 +37,12 @@ func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUs
 		fmt.Println("has err ?", err)
 		return user, "username", DbError(err)
 	} else {
-		gpwd, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
+		/*gpwd, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
 		if e != nil {
 			fmt.Println("generate password err ?", e)
 		} else {
 			fmt.Println("generate password ", string(gpwd))
-		}
+		}*/
 		//verify password
 		pwderr := bcrypt.CompareHashAndPassword([]byte(user.UserPass), []byte(password))
 		if pwderr != nil {
@@ -52,4 +53,25 @@ func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUs
 		return user, "username", nil
 	}
 	return user, "", nil
+}
+
+func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err error) {
+	match, _ := regexp.MatchString(`\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`, username)
+	if match {
+		user = models.WpUsers{UserEmail:username}
+		err = o.Read(&user, "UserEmail")
+	} else {
+		user = models.WpUsers{UserLogin:username}
+		err = o.Read(&user, "UserLogin")
+	}
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return user, errors.New("user.userNotExist")
+		} else {
+			fmt.Println("has err ?", err)
+			return user, DbError(err)
+		}
+	}
+	fmt.Println("success get user ", user)
+	return user, nil
 }

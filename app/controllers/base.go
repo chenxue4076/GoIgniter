@@ -4,13 +4,13 @@ import (
 	"github.com/astaxie/beego"
 	"os"
 	"strings"
-	"io/ioutil"
 	"path/filepath"
 	"github.com/beego/i18n"
 	"sync"
 	"net/http"
 	"html/template"
 	"time"
+	"io/ioutil"
 )
 
 var once sync.Once
@@ -132,7 +132,7 @@ func loadLangs()  {
 		filepath.Walk("resources/lang/"+lang, func(path string, f os.FileInfo, err error) error {
 			//fmt.Println(path, f.Name(), err)
 			if f != nil && ! f.IsDir() {
-				tempData, e := ReadFile(path)
+				tempData, e := ioutil.ReadFile(path)
 				if e != nil {
 					beego.Error("Fail to set message file: " + err.Error())
 					return err
@@ -148,11 +148,4 @@ func loadLangs()  {
 	}
 }
 
-func ReadFile(filePth string) ([]byte, error) {
-	f, err := os.Open(filePth)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return ioutil.ReadAll(f)
-}
+

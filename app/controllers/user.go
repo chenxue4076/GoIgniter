@@ -6,8 +6,10 @@ import (
 	"log"
 	"strings"
 	"windigniter.com/app/services"
-	"fmt"
 	"github.com/astaxie/beego"
+	"fmt"
+	"windigniter.com/app/libraries"
+	"io/ioutil"
 )
 
 type UserController struct {
@@ -24,6 +26,7 @@ func (c *UserController) Login() {
 		http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, beego.URLFor("MemberController.Center"), 302)
 	}
 	c.LayoutSections["HtmlFoot"] = ""
+	c.LayoutSections["Scripts"] = ""
 	lang := c.CurrentLang()
 	isAjax :=c.Ctx.Input.IsAjax()
 
@@ -57,8 +60,13 @@ func (c *UserController) Login() {
 			if err != nil {
 				fmt.Println("no info")
 				result = JsonOut{true, JsonMessage{Translate(lang, err.Error()), key}, ""}
-				e := validation.Error{Message:Translate(lang, err.Error()), Key:key}
-				c.Data["Error"] = e
+				//e := validation.Error{Message:Translate(lang, err.Error()), Key:key}
+				valid.SetError(key, Translate(lang, err.Error()))
+				c.Data["Error"] = valid.Errors
+				if isAjax {
+					c.Data["json"] = result
+					c.ServeJSON()
+				}
 			} else {
 				fmt.Println("has info")
 				result = JsonOut{false, JsonMessage{Translate(lang, "user.loginSuccess"), key}, refer}
@@ -74,12 +82,13 @@ func (c *UserController) Login() {
 				for k := 0; k < skey.NumField(); k++ {
 					c.SetSession(skey.Field(k).Name, sValue.Field(k).Interface())
 				}*/
+				if isAjax {
+					c.Data["json"] = result
+					c.ServeJSON()
+				} else {
+					http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+				}
 			}
-			if isAjax {
-				c.Data["json"] = result
-				c.ServeJSON()
-			}
-			http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
 		}
 		//if len(username) < 6
 	}
@@ -95,7 +104,73 @@ func (c *UserController) Register()  {
 }
 
 func (c *UserController) LostPassword() {
-	lang := c.CurrentLang()
+	c.LayoutSections["HtmlFoot"] = ""
+	lang := c.CurrentLang()//Post Data deal
+	isAjax :=c.Ctx.Input.IsAjax()
+	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
+		var result JsonOut
+		hasError := false
+		username := strings.TrimSpace(c.Input().Get("username"))
+		valid := validation.Validation{}
+		valid.Required(username, "username").Message(Translate(lang, "user.usernameRequired"))
+		if valid.HasErrors() {
+			hasError = true
+			var e *validation.Error
+			for index, err := range valid.Errors {
+				if index == 0 {
+					e = err
+				}
+			}
+			if isAjax {
+				c.Data["json"] = JsonOut{true, JsonMessage{e.Message, e.Key}, ""}
+				c.ServeJSON()
+			}
+			c.Data["Error"] = valid.Errors
+		}
+		//form verify success
+		if ! hasError {
+			//whether has this user
+			db := new(services.WpUsersService)
+			user, err := db.ExistUser(username)
+			if err != nil {
+				hasError = true
+				result = JsonOut{true, JsonMessage{Translate(lang, err.Error()), "username"}, ""}
+				valid.SetError("username", Translate(lang, err.Error()))
+				//e := validation.Error{Message:Translate(lang, "user.userNotExist"), Key:"username"}
+				c.Data["Error"] = valid.Errors
+			}
+			//get user info success
+			if ! hasError {
+				//user exists, send an email to this user
+				subject := Translate(lang, "user.resetPassword") + " - " + Translate(lang, "common.siteName")
+				mailBody, e := ioutil.ReadFile(beego.AppConfig.String("ViewsPath") + "/mail/resetpassword.html")
+				if e != nil {
+					hasError = true
+					result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), ""}, ""}
+					valid.SetError("", Translate(lang, e.Error()))
+					c.Data["Error"] = valid.Errors
+				}
+				if ! hasError {
+					err := libraries.SendMail(user.UserEmail, subject, string(mailBody), "html")
+					if err != nil {
+						hasError = true
+						result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), ""}, ""}
+						valid.SetError("", Translate(lang, e.Error()))
+						c.Data["Error"] = valid.Errors
+					}
+					if ! hasError {
+						result = JsonOut{false, JsonMessage{Translate(lang, "user.emailHasSend"), "username"}, ""}
+						c.Data["Success"] = Translate(lang, "user.emailHasSend")
+					}
+				}
+
+			}
+		}
+		if isAjax {
+			c.Data["json"] = result
+			c.ServeJSON()
+		}
+	}
 	c.Data["Title"] = Translate(lang,"user.lostPassword")
 }
 

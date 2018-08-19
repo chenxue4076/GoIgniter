@@ -5,9 +5,9 @@
         <h2 class="text-center">{{or .Title (i18n .Lang "common.siteName")}}</h2>
     </div>
     {{if .Error}}
-        <div class="form-label-group">
+        <div class="alert alert-danger" role="alert">
         {{range $_,$err := .Error}}
-            <p class="text-center red">{{$err.Message}}</p>
+            {{$err.Message}}<br />
         {{end}}
         </div>
     {{end}}
