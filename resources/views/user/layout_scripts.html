@@ -37,7 +37,11 @@
                 $.post($("#formLogin").attr("action"), $("#formLogin").serialize(), function (data) {
                     if( data.Err) {
                         $("#btnLoginSubmit").html('{{i18n .Lang "user.login"}}').removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
-                        show_input_error("input[name='"+data.Result.Key+"']", data.Result.Message);
+                        if ( data.Result.Key != "") {
+                            show_input_error("input[name='"+data.Result.Key+"']", data.Result.Message);
+                        } else {
+                            $("#btnLoginSubmit").html(data.Result.Message)
+                        }
                         return false;
                     }
                     $("#btnLoginSubmit").html('{{i18n .Lang "user.loginSuccess"}}').removeClass("btn-secondary").addClass("btn-success");

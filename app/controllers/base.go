@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"time"
 	"io/ioutil"
+	"path"
 )
 
 var once sync.Once
@@ -129,15 +130,18 @@ func loadLangs()  {
 	for _, lang := range langs {
 		langData := make([]byte, 0)
 		//beego.Trace("Loading language: " + lang)
-		filepath.Walk("resources/lang/"+lang, func(path string, f os.FileInfo, err error) error {
+		filepath.Walk("resources/lang/"+lang, func(theFile string, f os.FileInfo, err error) error {
 			//fmt.Println(path, f.Name(), err)
 			if f != nil && ! f.IsDir() {
-				tempData, e := ioutil.ReadFile(path)
-				if e != nil {
-					beego.Error("Fail to set message file: " + err.Error())
-					return err
+				fileSuffix := path.Ext(f.Name())
+				if fileSuffix == "ini" {
+					tempData, e := ioutil.ReadFile(theFile)
+					if e != nil {
+						beego.Error("Fail to set message file: " + err.Error())
+						return err
+					}
+					langData = append(langData, tempData...)
 				}
-				langData = append(langData, tempData...)
 			}
 			return nil
 		})

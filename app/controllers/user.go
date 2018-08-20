@@ -143,18 +143,21 @@ func (c *UserController) LostPassword() {
 			if ! hasError {
 				//user exists, send an email to this user
 				subject := Translate(lang, "user.resetPassword") + " - " + Translate(lang, "common.siteName")
-				mailBody, e := ioutil.ReadFile(beego.AppConfig.String("ViewsPath") + "/mail/resetpassword.html")
+				mailBody, e := ioutil.ReadFile("resources/lang/"+lang+"/mail/resetpassword.html")
 				if e != nil {
 					hasError = true
-					result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), ""}, ""}
+					result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), "username"}, ""}
 					valid.SetError("", Translate(lang, e.Error()))
 					c.Data["Error"] = valid.Errors
 				}
 				if ! hasError {
+					//replace var info
+					//Scan
+
 					err := libraries.SendMail(user.UserEmail, subject, string(mailBody), "html")
 					if err != nil {
 						hasError = true
-						result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), ""}, ""}
+						result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), "username"}, ""}
 						valid.SetError("", Translate(lang, e.Error()))
 						c.Data["Error"] = valid.Errors
 					}
