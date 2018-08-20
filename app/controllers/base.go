@@ -11,8 +11,7 @@ import (
 	"html/template"
 	"time"
 	"path"
-	"fmt"
-	"windigniter.com/app/libraries"
+	"io/ioutil"
 )
 
 var once sync.Once
@@ -132,13 +131,13 @@ func loadLangs()  {
 		langData := make([]byte, 0)
 		//beego.Trace("Loading language: " + lang)
 		filepath.Walk("resources/lang/"+lang, func(theFile string, f os.FileInfo, err error) error {
-			fmt.Println(theFile, f.Name(), err)
+			//fmt.Println(theFile, f.Name(), err)
 			if f != nil && ! f.IsDir() {
 				fileSuffix := path.Ext(f.Name())
-				fmt.Println("fileSuffix:",fileSuffix)
-				if fileSuffix == "ini" {
-					fmt.Println("ini:",theFile, f.Name())
-					tempData, e := libraries.ReadFile(theFile) //ioutil.ReadFile(theFile)
+				//fmt.Println("fileSuffix:",fileSuffix)
+				if fileSuffix == ".ini" {
+					//fmt.Println("ini:",theFile, f.Name())
+					tempData, e := ioutil.ReadFile(theFile)
 					if e != nil {
 						beego.Error("Fail to set message file: " + err.Error())
 						return err
@@ -146,7 +145,7 @@ func loadLangs()  {
 					langData = append(langData, tempData...)
 				}
 			}
-			fmt.Println("langData:", string(langData))
+			//fmt.Println("langData:", string(langData))
 			return nil
 		})
 		if err := i18n.SetMessageData(lang, langData); err != nil {

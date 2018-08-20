@@ -79,17 +79,22 @@ func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err er
 	return user, nil
 }
 
-func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, err error) {
+func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, key string, err error) {
 	user, err = s.ExistUser(username)
 	if err != nil {
-		return user, err
+		return user, "", err
 	}
 	//更新用户重置密码字段
-	key := libraries.WpGeneratePassword(20, false, false)
-	timeUnix := time.Now().Unix()
-	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" +  key
-	if _, err := o.Update(&user, "UserActivationKey"); err != nil {
-		return user, DbError(err)
+	key = libraries.WpGeneratePassword(20, false, false)
+	//set hash for key
+	hashKey, err := bcrypt.GenerateFromPassword([]byte(key), 8)
+	if err != nil {
+		return user, "", err
 	}
-	return user, nil
+	timeUnix := time.Now().Unix()
+	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" +  string(hashKey)
+	if _, err := o.Update(&user, "UserActivationKey"); err != nil {
+		return user, "", DbError(err)
+	}
+	return user, key,nil
 }

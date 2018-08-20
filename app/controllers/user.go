@@ -131,7 +131,7 @@ func (c *UserController) LostPassword() {
 		if ! hasError {
 			//whether has this user
 			db := new(services.WpUsersService)
-			user, err := db.DoResetPassword(username)
+			user, resetKey, err := db.DoResetPassword(username)
 			if err != nil {
 				hasError = true
 				result = JsonOut{true, JsonMessage{Translate(lang, err.Error()), "username"}, ""}
@@ -152,7 +152,7 @@ func (c *UserController) LostPassword() {
 				}
 				if ! hasError {
 					//replace var info
-					link := c.Ctx.Request.Proto + "://" + c.Ctx.Request.Host + "/reset-password?key=" + beego.Substr(user.UserActivationKey, 11, 20) + "&user="+user.UserLogin
+					link := "http://" + c.Ctx.Request.Host + "/reset-password?key=" + resetKey + "&user="+user.UserLogin
 					mailBodyString := fmt.Sprintf(string(mailBody), link, link)
 
 					err := libraries.SendMail(user.UserEmail, subject, mailBodyString, "html")
