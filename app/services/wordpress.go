@@ -8,6 +8,9 @@ import (
 	"regexp"
 	"golang.org/x/crypto/bcrypt"
 	"errors"
+	"windigniter.com/app/libraries"
+	"time"
+	"strconv"
 )
 
 type WpUsersService struct {
@@ -73,5 +76,20 @@ func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err er
 		}
 	}
 	fmt.Println("success get user ", user)
+	return user, nil
+}
+
+func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, err error) {
+	user, err = s.ExistUser(username)
+	if err != nil {
+		return user, err
+	}
+	//更新用户重置密码字段
+	key := libraries.WpGeneratePassword(20, false, false)
+	timeUnix := time.Now().Unix()
+	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" +  key
+	if _, err := o.Update(&user, "UserActivationKey"); err != nil {
+		return user, DbError(err)
+	}
 	return user, nil
 }
