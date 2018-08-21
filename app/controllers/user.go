@@ -10,6 +10,10 @@ import (
 	"fmt"
 	"windigniter.com/app/libraries"
 	"io/ioutil"
+	"strconv"
+	"time"
+	"golang.org/x/crypto/bcrypt"
+	"errors"
 )
 
 type UserController struct {
@@ -26,7 +30,6 @@ func (c *UserController) Login() {
 		http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, beego.URLFor("MemberController.Center"), 302)
 	}
 	c.LayoutSections["HtmlFoot"] = ""
-	c.LayoutSections["Scripts"] = ""
 	lang := c.CurrentLang()
 	isAjax :=c.Ctx.Input.IsAjax()
 
@@ -153,8 +156,9 @@ func (c *UserController) LostPassword() {
 				if ! hasError {
 					//replace var info
 					link := "http://" + c.Ctx.Request.Host + "/reset-password?key=" + resetKey + "&user="+user.UserLogin
-					mailBodyString := fmt.Sprintf(string(mailBody), link, link)
-
+					fmt.Println("user reset password link :", link)
+					//send email
+					mailBodyString := fmt.Sprintf(string(mailBody), Translate(lang, "common.siteName"), link, link, Translate(lang, "common.siteName"))
 					err := libraries.SendMail(user.UserEmail, subject, mailBodyString, "html")
 					if err != nil {
 						hasError = true
@@ -179,8 +183,133 @@ func (c *UserController) LostPassword() {
 }
 
 func (c *UserController) ResetPassword() {
+	c.LayoutSections["HtmlFoot"] = ""
 	lang := c.CurrentLang()
+	isAjax :=c.Ctx.Input.IsAjax()
+	//Post Data deal
+	var username, key, password string
+	valid := validation.Validation{}
+	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
+		username = strings.TrimSpace(c.Input().Get("username"))
+		key = strings.TrimSpace(c.Input().Get("key"))
+		password = strings.TrimSpace(c.Input().Get("password"))
+		passwordConfirm := strings.TrimSpace(c.Input().Get("passwordConfirm"))
+		valid.Required(username, "").Message(Translate(lang, "common.invalidRequest"))
+		valid.Required(key, "").Message(Translate(lang, "common.invalidRequest"))
+		valid.Required(password, "password").Message(Translate(lang, "user.passwordRequired"))
+		valid.Required(passwordConfirm, "passwordConfirm").Message(Translate(lang, "user.passwordRequired"))
+		if password != passwordConfirm {
+			valid.SetError("passwordConfirm", Translate(lang, "user.passwordNotMatch"))
+		}
+		if valid.HasErrors() {
+			var e *validation.Error
+			for index, err := range valid.Errors {
+				if index == 0 {
+					e = err
+				}
+			}
+			if isAjax {
+				c.Data["json"] = JsonOut{true, JsonMessage{e.Message, e.Key}, ""}
+				c.ServeJSON()
+			}
+			c.Data["Error"] = valid.Errors
+		}
+	} else {
+		username = c.GetString("user")
+		key = c.GetString("key")
+		//invalid input
+		if username == "" || key == "" {
+			if isAjax {
+				c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, "common.invalidRequest"), ""}, ""}
+				c.ServeJSON()
+			}
+			c.Data["Title"] = Translate(lang,"common.invalidRequest")
+			c.Data["Content"] = Translate(lang,"common.serverDealError")
+			c.Abort("Normal")
+		}
+		c.Data["Key"] = key
+		c.Data["Username"] = username
+	}
+	//get user info
+	db := new(services.WpUsersService)
+	user, err := db.ExistUser(username)
+	if err != nil {
+		if isAjax {
+			c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, err.Error()), ""}, ""}
+			c.ServeJSON()
+		}
+		if c.Ctx.Request.Method == http.MethodPost {
+			valid.SetError("", Translate(lang, err.Error()))
+			c.Data["Error"] = valid.Errors
+		} else {
+			c.Data["Title"] = Translate(lang,"common.invalidRequest")
+			c.Data["Content"] = Translate(lang,"common.serverDealError")
+			c.Abort("Normal")
+		}
+	} else {
+		if c.Ctx.Request.Method == http.MethodPost {
+			//verify key
+			timeKey := strings.Split(user.UserActivationKey, ":")
+			timeString, hashActivationKey := timeKey[0], timeKey[1]
+			timeInt, _ := strconv.Atoi(timeString)
+			now, _ := strconv.Atoi(strconv.FormatInt(time.Now().Unix(), 10))
+			if now - timeInt > 3600 * 24 {
+				if isAjax {
+					c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, "user.verificationInformationHasExpired"), ""}, ""}
+					c.ServeJSON()
+				}
+				valid.SetError("", Translate(lang, "user.verificationInformationHasExpired"))
+				c.Data["Error"] = valid.Errors
+			} else {
+				pwderr := bcrypt.CompareHashAndPassword([]byte(hashActivationKey), []byte(key))
+				if pwderr != nil {
+					if libraries.HashError(pwderr).Error() == "common.hashErrMismatchedHashAndPassword" {
+						pwderr = errors.New("user.resetKeyError")
+					}
+					if isAjax {
+						c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(pwderr).Error()), ""}, ""}
+						c.ServeJSON()
+					}
+					valid.SetError("", Translate(lang, libraries.HashError(pwderr).Error()))
+					c.Data["Error"] = valid.Errors
+				} else {
+					//set user password
+					newPassword, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
+					if e != nil {
+						if isAjax {
+							c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(e).Error()), ""}, ""}
+							c.ServeJSON()
+						}
+						valid.SetError("", Translate(lang, libraries.HashError(e).Error()))
+						c.Data["Error"] = valid.Errors
+					} else {
+						user.UserPass = string(newPassword)
+						user.UserActivationKey = ""
+						err := db.SaveUser(user, "UserPass", "UserActivationKey")
+						if err != nil {
+							if isAjax {
+								c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.DbError(err).Error()), ""}, ""}
+								c.ServeJSON()
+							}
+							valid.SetError("", Translate(lang, libraries.DbError(err).Error()))
+							c.Data["Error"] = valid.Errors
+						} else {
+							refer := c.Input().Get("refer")
+							if isAjax {
+								c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "common.success"), ""}, refer}
+								c.ServeJSON()
+							}
+							c.Data["Success"] = Translate(lang, "common.success")
+							http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+						}
+					}
+				}
+			}
+		}
+	}
+	c.Data["Refer"] = beego.URLFor("UserController.Login")
 	c.Data["Title"] = Translate(lang,"user.resetPassword")
+	c.Data["User"] = user
 }
 
 func (c *UserController) Logout() {

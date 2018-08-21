@@ -1,0 +1,22 @@
+<div class="form-signin">
+    <div class="form-label-group">
+        <h2 class="text-center">{{or .Title (i18n .Lang "common.siteName")}}</h2>
+    </div>
+    <div class="alert alert-danger" role="alert">
+        {{.Content}}
+    </div>
+    <div class="form-label-group">
+        <p>The page you have requested has flown the coop.</p>
+        <p>Perhaps you are here because:</p>
+        <ul>
+            <li>The page has moved</li>
+            <li>The page no longer exists</li>
+            <li>You were looking for your puppy and got lost</li>
+            <li>You like 404 pages</li>
+        </ul>
+    </div>
+    <div class="form-label-group">
+        <a class="btn btn-link" href="{{urlfor "MainController.Index"}}">&lt;- {{i18n .Lang "user.backTo"}} {{i18n .Lang "common.siteName"}}</a>
+    </div>
+    {{template "layout/copy.html" .}}
+</div>

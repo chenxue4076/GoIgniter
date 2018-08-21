@@ -12,6 +12,9 @@ func init() {
 	gob.Register(controllers.SessionUser{})
 	gob.Register(time.Time{})
 
+	//load page exception
+	beego.ErrorController(&controllers.ErrorsController{})
+
 	//route map
     beego.Router("/", &controllers.MainController{}, "get:Index")
 	//beego.Router("/login", &controllers.UserController{}, "get:LoginForm;post:LoginPost")

@@ -2,16 +2,13 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"os"
 	"strings"
-	"path/filepath"
 	"github.com/beego/i18n"
 	"sync"
 	"net/http"
 	"html/template"
 	"time"
-	"path"
-	"io/ioutil"
+	"windigniter.com/app/libraries"
 )
 
 var once sync.Once
@@ -44,7 +41,7 @@ var langs = []string {"zh-CN", "en-US"}
 // all controllers init
 func (c *BaseController) Prepare()  {
 	//multi language load
-	once.Do(loadLangs)
+	once.Do(libraries.LoadLangs)
 
 	//page params
 	c.TplExt = "html"
@@ -123,36 +120,4 @@ func (c *BaseController) CurrentLang() string {
 func Translate(lang,input string) string {
 	return i18n.Tr(lang, input)
 }
-
-func loadLangs()  {
-	//language choose
-	//langs := []string {"zh-CN", "en-US"}
-	for _, lang := range langs {
-		langData := make([]byte, 0)
-		//beego.Trace("Loading language: " + lang)
-		filepath.Walk("resources/lang/"+lang, func(theFile string, f os.FileInfo, err error) error {
-			//fmt.Println(theFile, f.Name(), err)
-			if f != nil && ! f.IsDir() {
-				fileSuffix := path.Ext(f.Name())
-				//fmt.Println("fileSuffix:",fileSuffix)
-				if fileSuffix == ".ini" {
-					//fmt.Println("ini:",theFile, f.Name())
-					tempData, e := ioutil.ReadFile(theFile)
-					if e != nil {
-						beego.Error("Fail to set message file: " + err.Error())
-						return err
-					}
-					langData = append(langData, tempData...)
-				}
-			}
-			//fmt.Println("langData:", string(langData))
-			return nil
-		})
-		if err := i18n.SetMessageData(lang, langData); err != nil {
-			beego.Error("Fail to set message file: " + err.Error())
-			return
-		}
-	}
-}
-
 

@@ -25,20 +25,10 @@ func init()  {
 }
 
 func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUsers, key string, err error) {
-	//\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*
-	match, _ := regexp.MatchString(`\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`, username)
-	//var user models.WpUsers
-	//var err error
-	if match {
-		user = models.WpUsers{UserEmail:username}
-		err = o.Read(&user, "UserEmail")
-	} else {
-		user = models.WpUsers{UserLogin:username}
-		err = o.Read(&user, "UserLogin")
-	}
+	user, err = s.ExistUser(username)
 	if err != nil {
 		fmt.Println("has err ?", err)
-		return user, "username", DbError(err)
+		return user, "username", libraries.DbError(err)
 	} else {
 		/*gpwd, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
 		if e != nil {
@@ -50,7 +40,7 @@ func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUs
 		pwderr := bcrypt.CompareHashAndPassword([]byte(user.UserPass), []byte(password))
 		if pwderr != nil {
 			fmt.Println("password err ?", pwderr)
-			return user,"password", HashError(pwderr)
+			return user,"password", libraries.HashError(pwderr)
 		}
 		fmt.Println(user)
 		return user, "username", nil
@@ -72,7 +62,7 @@ func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err er
 			return user, errors.New("user.userNotExist")
 		} else {
 			fmt.Println("has err ?", err)
-			return user, DbError(err)
+			return user, libraries.DbError(err)
 		}
 	}
 	fmt.Println("success get user ", user)
@@ -94,7 +84,14 @@ func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, 
 	timeUnix := time.Now().Unix()
 	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" +  string(hashKey)
 	if _, err := o.Update(&user, "UserActivationKey"); err != nil {
-		return user, "", DbError(err)
+		return user, "", libraries.DbError(err)
 	}
 	return user, key,nil
+}
+
+func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
+	if _, err := o.Update(&user, cols...); err != nil {
+		return err
+	}
+	return nil
 }
