@@ -24,6 +24,10 @@ func init() {
 	beego.Router("/lost-password", &controllers.UserController{}, "get,post:LostPassword")
 	beego.Router("/reset-password", &controllers.UserController{}, "get,post:ResetPassword")
 	beego.Router("/member/u_:username([\\w]+)", &controllers.MemberController{}, "get:Index")
-    beego.AutoRouter(&controllers.MemberController{})
+
+	beego.Router("/blog", &controllers.BlogController{}, "*:Index")
+    beego.AutoRouter(&controllers.BlogController{})
+
+	beego.AutoRouter(&controllers.MemberController{})
     //beego.Include(&controllers.UserController{})
 }

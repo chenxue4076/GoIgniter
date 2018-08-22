@@ -117,7 +117,7 @@ func (c *BaseController) CurrentLang() string {
 	return lang
 }
 
-func Translate(lang,input string) string {
-	return i18n.Tr(lang, input)
+func Translate(lang,input string, args ...interface{}) string {
+	return i18n.Tr(lang, input, args)
 }
 

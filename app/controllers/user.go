@@ -186,6 +186,7 @@ func (c *UserController) ResetPassword() {
 	c.LayoutSections["HtmlFoot"] = ""
 	lang := c.CurrentLang()
 	isAjax :=c.Ctx.Input.IsAjax()
+	hasError := false
 	//Post Data deal
 	var username, key, password string
 	valid := validation.Validation{}
@@ -197,11 +198,17 @@ func (c *UserController) ResetPassword() {
 		valid.Required(username, "").Message(Translate(lang, "common.invalidRequest"))
 		valid.Required(key, "").Message(Translate(lang, "common.invalidRequest"))
 		valid.Required(password, "password").Message(Translate(lang, "user.passwordRequired"))
+		passMin := 8
+		passMax := 32
+		valid.MinSize(password, passMin, "password").Message(Translate(lang, "user.passwordTooShort", passMin))
+		valid.MaxSize(password, passMax, "password").Message(Translate(lang, "user.passwordTooLong", passMax))
+		valid.AlphaDash(password, "password").Message(Translate(lang, "user.passwordAlphaDash"))
 		valid.Required(passwordConfirm, "passwordConfirm").Message(Translate(lang, "user.passwordRequired"))
 		if password != passwordConfirm {
 			valid.SetError("passwordConfirm", Translate(lang, "user.passwordNotMatch"))
 		}
 		if valid.HasErrors() {
+			hasError = true
 			var e *validation.Error
 			for index, err := range valid.Errors {
 				if index == 0 {
@@ -214,6 +221,8 @@ func (c *UserController) ResetPassword() {
 			}
 			c.Data["Error"] = valid.Errors
 		}
+		c.Data["Key"] = key
+		c.Data["Username"] = username
 	} else {
 		username = c.GetString("user")
 		key = c.GetString("key")
@@ -234,6 +243,7 @@ func (c *UserController) ResetPassword() {
 	db := new(services.WpUsersService)
 	user, err := db.ExistUser(username)
 	if err != nil {
+		hasError = true
 		if isAjax {
 			c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, err.Error()), ""}, ""}
 			c.ServeJSON()
@@ -246,67 +256,88 @@ func (c *UserController) ResetPassword() {
 			c.Data["Content"] = Translate(lang,"common.serverDealError")
 			c.Abort("Normal")
 		}
-	} else {
+	}
+	if ! hasError {
 		if c.Ctx.Request.Method == http.MethodPost {
-			//verify key
-			timeKey := strings.Split(user.UserActivationKey, ":")
-			timeString, hashActivationKey := timeKey[0], timeKey[1]
-			timeInt, _ := strconv.Atoi(timeString)
-			now, _ := strconv.Atoi(strconv.FormatInt(time.Now().Unix(), 10))
-			if now - timeInt > 3600 * 24 {
+			if user.UserActivationKey == "" {
+				hasError = true
 				if isAjax {
 					c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, "user.verificationInformationHasExpired"), ""}, ""}
 					c.ServeJSON()
 				}
 				valid.SetError("", Translate(lang, "user.verificationInformationHasExpired"))
 				c.Data["Error"] = valid.Errors
-			} else {
-				pwderr := bcrypt.CompareHashAndPassword([]byte(hashActivationKey), []byte(key))
-				if pwderr != nil {
-					if libraries.HashError(pwderr).Error() == "common.hashErrMismatchedHashAndPassword" {
-						pwderr = errors.New("user.resetKeyError")
-					}
+			}
+			if ! hasError {
+				//verify key
+				timeKey := strings.Split(user.UserActivationKey, ":")
+				timeString, hashActivationKey := timeKey[0], timeKey[1]
+				timeInt, _ := strconv.Atoi(timeString)
+				now, _ := strconv.Atoi(strconv.FormatInt(time.Now().Unix(), 10))
+				if now-timeInt > 3600*24 {
+					hasError = true
 					if isAjax {
-						c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(pwderr).Error()), ""}, ""}
+						c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, "user.verificationInformationHasExpired"), ""}, ""}
 						c.ServeJSON()
 					}
-					valid.SetError("", Translate(lang, libraries.HashError(pwderr).Error()))
+					valid.SetError("", Translate(lang, "user.verificationInformationHasExpired"))
 					c.Data["Error"] = valid.Errors
-				} else {
-					//set user password
-					newPassword, e :=bcrypt.GenerateFromPassword([]byte(password), 0)
-					if e != nil {
+				}
+				if ! hasError {
+					pwderr := bcrypt.CompareHashAndPassword([]byte(hashActivationKey), []byte(key))
+					if pwderr != nil {
+						hasError = true
+						if libraries.HashError(pwderr).Error() == "common.hashErrMismatchedHashAndPassword" {
+							pwderr = errors.New("user.resetKeyError")
+						}
 						if isAjax {
-							c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(e).Error()), ""}, ""}
+							c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(pwderr).Error()), ""}, ""}
 							c.ServeJSON()
 						}
-						valid.SetError("", Translate(lang, libraries.HashError(e).Error()))
+						valid.SetError("", Translate(lang, libraries.HashError(pwderr).Error()))
 						c.Data["Error"] = valid.Errors
-					} else {
-						user.UserPass = string(newPassword)
-						user.UserActivationKey = ""
-						err := db.SaveUser(user, "UserPass", "UserActivationKey")
-						if err != nil {
+					}
+					if ! hasError {
+						//set user password
+						newPassword, e := bcrypt.GenerateFromPassword([]byte(password), 0)
+						if e != nil {
+							hasError = true
 							if isAjax {
-								c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.DbError(err).Error()), ""}, ""}
+								c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.HashError(e).Error()), ""}, ""}
 								c.ServeJSON()
 							}
-							valid.SetError("", Translate(lang, libraries.DbError(err).Error()))
+							valid.SetError("", Translate(lang, libraries.HashError(e).Error()))
 							c.Data["Error"] = valid.Errors
-						} else {
-							refer := c.Input().Get("refer")
-							if isAjax {
-								c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "common.success"), ""}, refer}
-								c.ServeJSON()
+						}
+						if ! hasError {
+							user.UserPass = string(newPassword)
+							user.UserActivationKey = ""
+							err := db.SaveUser(user, "UserPass", "UserActivationKey")
+							if err != nil {
+								hasError = true
+								if isAjax {
+									c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, libraries.DbError(err).Error()), ""}, ""}
+									c.ServeJSON()
+								}
+								valid.SetError("", Translate(lang, libraries.DbError(err).Error()))
+								c.Data["Error"] = valid.Errors
 							}
-							c.Data["Success"] = Translate(lang, "common.success")
-							http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+							if ! hasError {
+								refer := c.Input().Get("refer")
+								if isAjax {
+									c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "common.success"), ""}, refer}
+									c.ServeJSON()
+								}
+								c.Data["Success"] = Translate(lang, "common.success")
+								http.Redirect(c.Ctx.ResponseWriter, c.Ctx.Request, refer, 302)
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+
 	c.Data["Refer"] = beego.URLFor("UserController.Login")
 	c.Data["Title"] = Translate(lang,"user.resetPassword")
 	c.Data["User"] = user

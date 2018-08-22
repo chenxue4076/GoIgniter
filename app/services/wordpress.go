@@ -24,6 +24,7 @@ func init()  {
 	o.Using("default")
 }
 
+// User login check
 func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUsers, key string, err error) {
 	user, err = s.ExistUser(username)
 	if err != nil {
@@ -47,7 +48,7 @@ func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUs
 	}
 	return user, "", nil
 }
-
+//wether user has exist
 func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err error) {
 	match, _ := regexp.MatchString(`\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`, username)
 	if match {
@@ -68,7 +69,7 @@ func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err er
 	fmt.Println("success get user ", user)
 	return user, nil
 }
-
+//reset password
 func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, key string, err error) {
 	user, err = s.ExistUser(username)
 	if err != nil {
@@ -88,10 +89,15 @@ func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, 
 	}
 	return user, key,nil
 }
-
+//update user info
 func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
 	if _, err := o.Update(&user, cols...); err != nil {
 		return err
 	}
 	return nil
+}
+
+// blog new list
+func (s *WpUsersService)  {
+
 }

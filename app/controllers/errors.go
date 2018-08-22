@@ -10,10 +10,10 @@ func (c *ErrorsController) Error404() {
 	c.LayoutSections["HtmlFoot"] = ""
 	c.LayoutSections["Scripts"] = ""
 	c.LayoutSections["SideBar"] = ""
-	if c.Data["Title"] == "" {
-		c.Data["Title"] = Translate(lang, "common.pageNotFound")
+	if c.Data["Title"] == nil {
+		c.Data["Title"] = Translate(lang, "common.error404")
 	}
-	if c.Data["Content"] == "" {
+	if c.Data["Content"] == nil {
 		c.Data["Content"] = Translate(lang, "common.pageNotFound")
 	}
 	c.TplName = "errors/404.html"
@@ -25,10 +25,10 @@ func (c *ErrorsController) ErrorNormal() {
 	c.LayoutSections["HtmlFoot"] = ""
 	c.LayoutSections["Scripts"] = ""
 	c.LayoutSections["SideBar"] = ""
-	if c.Data["Title"] == "" {
+	if c.Data["Title"] == nil {
 		c.Data["Title"] = Translate(lang, "common.unknownError")
 	}
-	if c.Data["Content"] == "" {
+	if c.Data["Content"] == nil {
 		c.Data["Content"] = Translate(lang, "common.unknownError")
 	}
 	c.TplName = "errors/Normal.html"

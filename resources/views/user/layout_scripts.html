@@ -1,45 +1,45 @@
 <script>
     $(document).ready(function () {
         //login form
-        if( $("#btnLoginSubmit") ) {    //Login Ajax
+        if( $("#btnLoginSubmit").length > 0 ) {    //Login Ajax
             $("input[name='username']").on('keyup', function () {
                 var username = $.trim($(this).val());
                 if( username == '') {
-                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
-                } else {
-                    show_input_default("input[name='username']", '');
+                    showInputError("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                    return false;
                 }
+                showInputDefault("input[name='username']", '');
             });
             $("input[name='password']").on('keyup', function () {
                 var password = $.trim($(this).val());
                 if( password == '') {
-                    show_input_error("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
-                } else {
-                    show_input_default("input[name='password']", '');
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    return false;
                 }
+                showInputDefault("input[name='password']", '');
             });
 
             $("#btnLoginSubmit").on('click', function () {
                 var username = $.trim($("input[name='username']").val());
                 var password = $.trim($("input[name='password']").val());
                 if( username == '') {
-                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                    showInputError("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
                     return false;
                 } else {
-                    show_input_default("input[name='username']", '');
+                    showInputDefault("input[name='username']", '');
                 }
                 if( password == '') {
-                    show_input_error("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
                     return false;
                 } else {
-                    show_input_default("input[name='password']", '');
+                    showInputDefault("input[name='password']", '');
                 }
                 $(this).html('{{i18n .Lang "user.logging"}}').attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
                 $.post($("#formLogin").attr("action"), $("#formLogin").serialize(), function (data) {
                     if( data.Err) {
                         $("#btnLoginSubmit").html('{{i18n .Lang "user.login"}}').removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
                         if ( data.Result.Key != "") {
-                            show_input_error("input[name='"+data.Result.Key+"']", data.Result.Message);
+                            showInputError("input[name='"+data.Result.Key+"']", data.Result.Message);
                         } else {
                             $(".alert").removeClass("alert-success").addClass("alert-danger").html(data.Result.Message)
                         }
@@ -53,30 +53,30 @@
             });
         }
 
-        //reset password form
-        if( $("#btnLostPasswordSubmit") ) {
+        //lost password form
+        if( $("#btnLostPasswordSubmit").length > 0 ) {
             $("input[name='username']").on('keyup', function () {
                 var username = $.trim($(this).val());
                 if( username == '') {
-                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
-                } else {
-                    show_input_default("input[name='username']", '');
+                    showInputError("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                    return false;
                 }
+                showInputDefault("input[name='username']", '');
             });
             $("#btnLostPasswordSubmit").on('click', function () {
                 var username = $.trim($("input[name='username']").val());
                 if( username == '') {
-                    show_input_error("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
+                    showInputError("input[name='username']", '{{i18n .Lang "user.usernameRequired"}}');
                     return false;
                 } else {
-                    show_input_default("input[name='username']", '');
+                    showInputDefault("input[name='username']", '');
                 }
                 $(this).html('{{i18n .Lang "common.dealing"}}').attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
-                $.post($("#formResetPwd").attr("action"), $("#formResetPwd").serialize(), function (data) {
+                $.post($("#formLostPwd").attr("action"), $("#formLostPwd").serialize(), function (data) {
                     if( data.Err) {
                         $("#btnLostPasswordSubmit").html('{{i18n .Lang "user.findBackPassword"}}').removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
                         if ( data.Result.Key != "") {
-                            show_input_error("input[name='"+data.Result.Key+"']", data.Result.Message);
+                            showInputError("input[name='"+data.Result.Key+"']", data.Result.Message);
                         } else {
                             $(".alert").removeClass("alert-success").addClass("alert-danger").html(data.Result.Message)
                         }
@@ -88,5 +88,94 @@
                 return false;
             });
         }
+
+        //reset password form
+        if( $("#btnResetPasswordSubmit").length > 0 ) {
+            $("input[name='password']").on('keyup', function () {
+                var password = $.trim($(this).val());
+                $("#btnResetPasswordSubmit").attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
+                if( password.length == 0) {
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    return false;
+                } else if (password.length < 8 || password.length > 32) {
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRange" 8 32}}');
+                    return false;
+                } else {
+                    var level = passwordStrong(password);
+                    //console.log("password level", level)
+                    switch (level) {
+                        case 1:
+                            showInputError("input[name='password']", '{{i18n .Lang "user.passwordLow"}}');
+                            break;
+                        case 2:
+                            showInputDefault("input[name='password']", '{{i18n .Lang "user.passwordNormal"}}');
+                            break;
+                        case 3:
+                            showInputSuccess("input[name='password']", '{{i18n .Lang "user.passwordStrong"}}');
+                            break;
+                        case 4:
+                            showInputSuccess("input[name='password']", '{{i18n .Lang "user.passwordPerfect"}}');
+                            break;
+                        case 0:
+                        default:
+                            showInputError("input[name='password']", '{{i18n .Lang "user.passwordAlphaDash"}}');
+                    }
+                }
+                var passwordConfirm = $("input[name='passwordConfirm']").val();
+                if( passwordConfirm.length > 0 ) {
+                    if( password != passwordConfirm ) {
+                        showInputError("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordNotMatch"}}');
+                        return false;
+                    }
+                    showInputSuccess("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordMatch"}}');
+                    $("#btnResetPasswordSubmit").removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
+                }
+            });
+            $("input[name='passwordConfirm']").on('keyup', function () {
+                $("#btnResetPasswordSubmit").attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
+                var password = $.trim($("input[name='password']").val());
+                var passwordConfirm = $.trim($(this).val());
+                if( password.length == 0) {
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    return false;
+                }
+                if( passwordConfirm.length == 0) {
+                    showInputError("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordConfirmRequired"}}');
+                } else if( passwordConfirm == password) {
+                    showInputSuccess("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordMatch"}}');
+                    $("#btnResetPasswordSubmit").removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
+                } else {
+                    showInputError("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordNotMatch"}}');
+                }
+            });
+            $("#btnResetPasswordSubmit").on('click', function () {
+                $("#btnResetPasswordSubmit").attr("disabled", "disabled").removeClass("btn-primary").addClass("btn-secondary");
+                var password = $.trim($("input[name='password']").val());
+                var passwordConfirm = $("input[name='passwordConfirm']").val();
+                if ( password.length == 0) {
+                    showInputError("input[name='password']", '{{i18n .Lang "user.passwordRequired"}}');
+                    return false;
+                }
+                if( passwordConfirm != password) {
+                    showInputError("input[name='passwordConfirm']", '{{i18n .Lang "user.passwordNotMatch"}}');
+                    return false;
+                }
+                $.post($("#formResetPassword").attr("action"), $("#formResetPassword").serialize(), function (data) {
+                    if( data.Err) {
+                        $("#btnResetPasswordSubmit").html('{{i18n .Lang "user.findBackPassword"}}').removeAttr("disabled").removeClass("btn-secondary").addClass("btn-primary");
+                        if ( data.Result.Key != "") {
+                            showInputError("input[name='"+data.Result.Key+"']", data.Result.Message);
+                        } else {
+                            $(".alert").removeClass("alert-success").addClass("alert-danger").html(data.Result.Message)
+                        }
+                        return false;
+                    }
+                    $(".alert").addClass("alert-success").removeClass("alert-danger").html(data.Result.Message)
+                    $("#btnResetPasswordSubmit").html('{{i18n .Lang "user.sendSuccess"}}').removeClass("btn-secondary").addClass("btn-success");
+                }, "json");
+                return false;
+            });
+        }
+
     });
 </script>
