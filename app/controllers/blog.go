@@ -60,5 +60,6 @@ func (c *BlogController) Show() {
 
 	c.Data["Title"] = blog.PostTitle
 	c.Data["Author"] = blog.PostAuthor.DisplayName
+	c.Data["Description"] = blog.PostExcerpt
 	c.Data["Blog"] = blog
 }

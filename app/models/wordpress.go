@@ -83,6 +83,58 @@ func (u *WpPostmeta) TableName() string {
 	return preTable + "postmeta"
 }
 
+type WpTerms struct {
+	TermId					int64			`orm:"auto"`
+	Name					string			`orm:"size(200);index"`
+	Slug					string			`orm:"size(200);index"`
+	TermGroup				int64			`orm:"default(0)"`
+	TermMate				[]*WpTermmeta	`orm:"reverse(many)"`
+}
+func (u *WpTerms) TableName() string {
+	return preTable + "terms"
+}
+
+type WpTermmeta struct {
+	MetaId					int64			`orm:"auto"`
+	TermId					*WpTerms		`orm:"default(0);index;rel(fk);on_delete(cascade)"`
+	MetaKey					string			`orm:"size(255);null;index"`
+	MetaValue				string			`orm:"type(text)"`
+}
+func (u *WpTermmeta) TableName() string {
+	return preTable + "termmeta"
+}
+
+type WpTermTaxonomy struct {
+	TermTaxonomyId			int64			`orm:"auto"`
+	TermId					int64			`orm:"default(0)"`
+	Taxonomy				string			`orm:"size(32);index"`
+	Description				string			`orm:"type(text)"`
+	Parent					int64			`orm:"default(0)"`
+	Count					int64			`orm:"default(0)"`
+}
+func (u *WpTermTaxonomy) TableName() string {
+	return preTable + "term_taxonomy"
+}
+func (u *WpTermTaxonomy) TableIndex() [][]string {
+	return [][]string{
+		[]string{"TermId", "Taxonomy"},
+	}
+}
+
+type WpTermRelationships struct {
+	ObjectId				int64			`orm:"default(0)"`
+	TermTaxonomyId			int64			`orm:"default(0);index"`
+	TermOrder				int64			`orm:"default(0)"`
+}
+func (u *WpTermRelationships) TableName() string {
+	return preTable + "term_relationships"
+}
+func (u *WpTermRelationships) TableIndex() [][]string {
+	return [][]string{
+		[]string{"ObjectId", "TermTaxonomyId"},
+	}
+}
+
 type WpOptions struct {
 	OptionId				int64			`orm:"auto"`
 	OptionName				string			`orm:"size(191);index"`
@@ -95,7 +147,7 @@ func (u *WpOptions) TableName() string {
 
 func init()  {
 	//register models
-	orm.RegisterModel(new(WpUsers),  new(WpUsermeta),  new(WpPosts), new(WpPostmeta), new(WpOptions))
+	orm.RegisterModel(new(WpUsers),  new(WpUsermeta),  new(WpPosts), new(WpPostmeta), new(WpTerms), new(WpTermmeta), new(WpTermTaxonomy), new(WpTermRelationships), new(WpOptions))
 	//orm.RegisterModelWithPrefix(beego.AppConfig.String("MysqlPrefix"),new(WpUsers))
 	//orm.RegisterModelWithPrefix("wp_", new(WpUsers),  new(WpUsermeta),  new(WpPosts), new(WpPostmeta), new(WpOptions))
 }

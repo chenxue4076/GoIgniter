@@ -108,11 +108,10 @@ func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
 	return nil
 }
 
-
 // blog new list
 func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, total int64, err error) {
 	wpPosts := models.WpPosts{}
-	qs := o.QueryTable(wpPosts.TableName())
+	qs := o.QueryTable(wpPosts.TableName()).Filter("post_status", "publish")
 	total, err = qs.Count()
 	if err != nil {
 		fmt.Println("has err get total ?", err)
@@ -130,8 +129,8 @@ func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, tot
 func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPosts, err error) {
 	//wpUser := models.WpUsers{}
 	wpPosts := models.WpPosts{}
-	qs := o.QueryTable(wpPosts.TableName())
-	fmt.Println("BlogDetail", Id, postName)
+	qs := o.QueryTable(wpPosts.TableName()).Filter("post_status", "publish")
+	//fmt.Println("BlogDetail", Id, postName)
 	if Id != 0 {
 		qs = qs.Filter("ID", Id)
 	} else if postName != "" {
@@ -139,7 +138,7 @@ func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPo
 	} else {
 		return blog, errors.New("common.ErrArgs")
 	}
-	err = qs.Filter("post_status", "publish").RelatedSel().One(&blog)
+	err = qs.RelatedSel().One(&blog)
 	if err != nil {
 		return blog, err
 	}
