@@ -6,11 +6,13 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
+var preTable = "wp_"
+
 type WpUsers struct {
 	Id					int64			`orm:"column(ID);auto"`				//The primary key id
 	UserLogin			string			`orm:"size(60);unique"`				//The user login name
 	UserPass			string			`orm:"size(255)"`
-	UserNicename		string			`orm:"size(50)"`
+	UserNicename		string			`orm:"size(50);index"`
 	UserEmail			string			`orm:"size(100);unique"`
 	UserUrl				string			`orm:"size(100)"`
 	UserRegistered		time.Time		`orm:"auto_now_add;type(datetime)"`
@@ -20,11 +22,25 @@ type WpUsers struct {
 	//Spam				int8			`orm:"default(0)"`
 	//Deleted				int8			`orm:"default(0)"`
 	UserPosts			[]*WpPosts		`orm:"reverse(many)"`
+	UserMetas			[]*WpUsermeta	`orm:"reverse(many)"`
+}
+func (u *WpUsers) TableName() string {
+	return preTable + "users"
+}
+
+type WpUsermeta struct {
+	UmetaId					int64			`orm:"auto"`
+	UserId					*WpUsers		`orm:"default(0);index;rel(fk);on_delete(cascade)"`
+	MetaKey					string			`orm:"size(255);null;index"`
+	MetaValue				string			`orm:"type(text);null"`
+}
+func (u *WpUsermeta) TableName() string {
+	return preTable + "usermeta"
 }
 
 type WpPosts struct {
 	Id					int64			`orm:"column(ID);auto"`
-	PostAuthor			*WpUsers		`orm:"default(0);index;rel(fk);on_delete(do_nothing)"`
+	PostAuthor			*WpUsers		`orm:"column(post_author);default(0);index;rel(fk);on_delete(do_nothing)"`
 	PostDate			time.Time		`orm:"auto_now_add;type(datetime)"`
 	PostDateGmt			time.Time		`orm:"auto_now_add;type(datetime)"`
 	PostContent			string			`orm:"type(text)"`
@@ -46,13 +62,40 @@ type WpPosts struct {
 	PostType			string			`orm:"size(20)"`
 	PostMimeType		string			`orm:"size(100)"`
 	CommentCount		int64			`orm:"default(0)"`
-	//Author				*WpUsers		`orm:"rel(fk)"`
+	PostMeta			[]*WpPostmeta	`orm:"reverse(many)"`
+}
+func (u *WpPosts) TableName() string {
+	return preTable + "posts"
+}
+func (u *WpPosts) TableIndex() [][]string {
+	return [][]string{
+		[]string{"PostType", "PostStatus", "PostDate", "Id"},
+	}
 }
 
+type WpPostmeta struct {
+	MetaId					int64			`orm:"auto"`
+	PostId					*WpPosts		`orm:"default(0);index;rel(fk);on_delete(cascade)"`
+	MetaKey					string			`orm:"size(255);null;index"`
+	MetaValue				string			`orm:"type(text)"`
+}
+func (u *WpPostmeta) TableName() string {
+	return preTable + "postmeta"
+}
+
+type WpOptions struct {
+	OptionId				int64			`orm:"auto"`
+	OptionName				string			`orm:"size(191);index"`
+	OptionValue				string			`orm:"type(text)"`
+	Autoload				string			`orm:"size(20);default(yes)"`
+}
+func (u *WpOptions) TableName() string {
+	return preTable + "options"
+}
 
 func init()  {
 	//register models
-	orm.RegisterModel(new(WpUsers), new(WpPosts))
+	orm.RegisterModel(new(WpUsers),  new(WpUsermeta),  new(WpPosts), new(WpPostmeta), new(WpOptions))
 	//orm.RegisterModelWithPrefix(beego.AppConfig.String("MysqlPrefix"),new(WpUsers))
-	//orm.RegisterModelWithPrefix("wp_",new(WpUsers))
+	//orm.RegisterModelWithPrefix("wp_", new(WpUsers),  new(WpUsermeta),  new(WpPosts), new(WpPostmeta), new(WpOptions))
 }

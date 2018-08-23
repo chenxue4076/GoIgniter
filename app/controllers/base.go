@@ -59,6 +59,9 @@ func (c *BaseController) Prepare()  {
 	c.LayoutSections["Scripts"] = controller + "/layout_scripts."+c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
+	//active menu
+	c.Data["ActiveClass"] = controller
+
 	//page data
 	c.Data["Lang"] = c.CurrentLang()
 

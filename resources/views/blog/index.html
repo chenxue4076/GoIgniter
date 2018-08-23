@@ -1,0 +1,12 @@
+<div class="container">
+    <p>{{.Total}}</p>
+    {{if .Blogs}}
+        {{range $_, $blog := .Blogs}}
+            <article>
+                <header><h2><a href="/blog{{wpUrlFormat $blog.PostDate $blog.PostName $blog.Id $.PermalinkStructure}}">{{$blog.PostTitle}}</a></h2></header>
+                <section>{{$blog.PostContent | html}}</section>
+                <footer><time>{{dateFormat $blog.PostDate $.DateFormat }}</time></footer>
+            </article>
+        {{end}}
+    {{end}}
+</div>

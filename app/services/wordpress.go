@@ -24,6 +24,17 @@ func init()  {
 	o.Using("default")
 }
 
+//wordpress options
+func (s *WpUsersService) Options(optionName string) (optionValue string, err error) {
+	options := models.WpOptions{OptionName:optionName}
+	err = o.Read(&options, "OptionName")
+	if err != nil {
+		fmt.Println("has err ?", err)
+		return optionValue, libraries.DbError(err)
+	}
+	return options.OptionValue, nil
+}
+
 // User login check
 func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUsers, key string, err error) {
 	user, err = s.ExistUser(username)
@@ -97,7 +108,40 @@ func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
 	return nil
 }
 
-// blog new list
-func (s *WpUsersService)  {
 
+// blog new list
+func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, total int64, err error) {
+	wpPosts := models.WpPosts{}
+	qs := o.QueryTable(wpPosts.TableName())
+	total, err = qs.Count()
+	if err != nil {
+		fmt.Println("has err get total ?", err)
+		return blogs, total, libraries.DbError(err)
+	}
+	offset := (page - 1) * limit
+	_, err = qs.OrderBy("-ID").Limit(limit).Offset(offset).All(&blogs)
+	if err != nil {
+		fmt.Println("has err ?", err)
+		return blogs, total, libraries.DbError(err)
+	}
+	return blogs, total, nil
+}
+// blog detail by id
+func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPosts, err error) {
+	//wpUser := models.WpUsers{}
+	wpPosts := models.WpPosts{}
+	qs := o.QueryTable(wpPosts.TableName())
+	fmt.Println("BlogDetail", Id, postName)
+	if Id != 0 {
+		qs = qs.Filter("ID", Id)
+	} else if postName != "" {
+		qs = qs.Filter("post_name", postName)
+	} else {
+		return blog, errors.New("common.ErrArgs")
+	}
+	err = qs.Filter("post_status", "publish").RelatedSel().One(&blog)
+	if err != nil {
+		return blog, err
+	}
+	return blog, nil
 }

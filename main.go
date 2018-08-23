@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/beego/i18n"
 		"html"
+	"windigniter.com/app/libraries"
 )
 
 func main() {
@@ -15,6 +16,8 @@ func main() {
 
 	beego.AddFuncMap("i18n", i18n.Tr)
 	beego.AddFuncMap("html", html.UnescapeString)
+	beego.AddFuncMap("dateFormat", libraries.DateFormat)
+	beego.AddFuncMap("wpUrlFormat", libraries.WordPressUrlFormat)
 
 	beego.Run()
 }

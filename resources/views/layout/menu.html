@@ -5,24 +5,25 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+            <li class="nav-item {{if eq .ActiveClass "main"}}active{{end}}">
                 <a class="nav-link" href="{{urlfor "MainController.Index"}}">{{i18n .Lang "common.Home" }} <span class="sr-only">(current)</span></a>
             </li>
+            <li class="nav-item {{if eq .ActiveClass "blog"}}active{{end}}">
+                <a class="nav-link" href="{{urlfor "BlogController.Index"}}">{{i18n .Lang "common.Blog" }} <span class="sr-only">(current)</span></a>
+            </li>
+            {{if .User}}
+                <li class="nav-item">
+                    <form method="post" action="{{urlfor "UserController.Logout"}}">
+                    {{.XsrfData}}
+                        <input type="hidden" name="refer" value="{{or .Refer (urlfor "UserController.Login")}}" />
+                        <button type="submit" class="btn btn-link">{{i18n .Lang "user.logout"}}</button>
+                    </form>
+                </li>
+                {{/*<li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} </li>*/}}
+            {{else}}
+                <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>
+            {{end}}
         </ul>
     </div>
 </nav>
-<ul class="nav">
-    {{if .User}}
-        <li class="nav-item">
-            <form method="post" action="{{urlfor "UserController.Logout"}}">
-                {{.XsrfData}}
-                <input type="hidden" name="refer" value="{{or .Refer (urlfor "UserController.Login")}}" />
-                <button type="submit" class="btn btn-link">{{i18n .Lang "user.logout"}}</button>
-            </form>
-        </li>
-        <li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} </li>
-    {{else}}
-        <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>
-    {{end}}
-</ul>
