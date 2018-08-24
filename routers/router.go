@@ -35,7 +35,11 @@ func init() {
 	beego.Router("/blog/:year([0-9]{4})/:postName:string", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog/:postName:string", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog", &controllers.BlogController{}, "get:Index")
-    //beego.AutoRouter(&controllers.BlogController{})
+
+	beego.Router("/japan", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/japan/news", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/japan/news/index", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/japan/news/:id:int", &controllers.JapanNewsController{}, "get:Show")
 
 	beego.AutoRouter(&controllers.MemberController{})
     //beego.Include(&controllers.UserController{})

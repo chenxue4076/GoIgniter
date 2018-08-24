@@ -17,12 +17,12 @@ type WpUsersService struct {
 	BaseService
 }
 
-var o orm.Ormer
+//var o orm.Ormer
 
-func init()  {
+/*func init()  {
 	o = orm.NewOrm()
 	o.Using("default")
-}
+}*/
 
 //wordpress options
 func (s *WpUsersService) Options(optionName string) (optionValue string, err error) {
@@ -140,7 +140,33 @@ func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPo
 	}
 	err = qs.RelatedSel().One(&blog)
 	if err != nil {
-		return blog, err
+		return blog, libraries.DbError(err)
 	}
 	return blog, nil
+}
+// blog tag list
+func (s *WpUsersService) Tags(Id int64, tType string) (tags []*models.WpTerms, err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	if err != nil {
+		return nil, err
+	}
+	if tType == "" {
+		tType = "post_tag"
+	}
+	wpTerms := models.WpTerms{}
+	wpTermRelationships := models.WpTermRelationships{}
+	wpTermTaxonomy := models.WpTermTaxonomy{}
+	sql := qb.Select("t.term_id","t.name", "t.slug").
+		From(wpTermRelationships.TableName()+" AS r").
+		InnerJoin(wpTermTaxonomy.TableName()+" AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
+		InnerJoin(wpTerms.TableName()+" AS t").On("tt.term_id = t.term_id").
+		Where("r.object_id = ?").And("tt.taxonomy = ?").String()
+	num, err := o.Raw(sql, Id, tType).QueryRows(&tags)
+	if err != nil {
+		return nil, libraries.DbError(err)
+	}
+	if num == 0 {
+		return nil, nil
+	}
+	return tags, nil
 }

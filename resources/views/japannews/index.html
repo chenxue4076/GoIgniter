@@ -1,0 +1,14 @@
+<div class="container">
+    <p>{{.Total}}</p>
+    {{if .NewsList}}
+        {{range $_, $news := .NewsList}}
+            <article>
+                <header>
+                    <h2><a href="/japan/news/{{$news.Id}}">{{$news.TitleRuby | html}}</a></h2>
+                </header>
+                <section>{{$news.Content | html}}</section>
+                <footer><time>{{date $news.Pubdate "Y-m-d"}}</time></footer>
+            </article>
+        {{end}}
+    {{end}}
+</div>

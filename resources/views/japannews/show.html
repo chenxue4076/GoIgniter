@@ -1,0 +1,45 @@
+<section class="container">
+    <article>
+        <header>
+            <h2>{{.News.TitleRuby | html}}</h2>
+            {{date .News.Pubdate "Y-m-d"}}
+        </header>
+        <details open="open">
+            <summary>{{.News.DescribeRuby | html}}</summary>
+            {{/*{{if .News.Featured}}<img src="{{.News.Featured}}" style="max-height: 400px;" /> {{end}}*/}}
+            <div class="">
+                {{.News.Content | html}}
+            </div>
+        </details>
+        <footer>
+            {{if .News.Media}}
+                {{if eq (substr .News.Media 0 4) "http"}}
+                    <audio controls="controls" loop="loop">
+                        {{if contains (lower .News.Media) ".ogg"}}
+                            <source src="{{.News.Media}}" type="audio/ogg">
+                        {{else if contains (lower .News.Media) ".aac"}}
+                            <source src="{{.News.Media}}" type="audio/mp4">
+                        {{else}}
+                            <source src="{{.News.Media}}" type="audio/mpeg">
+                        {{end}}
+                        Your browser does not support the audio tag.
+                    </audio>
+                {{else}}
+                    <iframe frameborder="no" width="80%" height="190px" scrolling="no" src="https://www3.nhk.or.jp/news/easy/player/audio.html?id={{.News.NewsId}}"></iframe>
+                {{end}}
+                <hr />
+            {{end}}
+            {{if .News.Dict}}
+                <ul>
+
+                </ul>
+            {{end}}
+        </footer>
+    </article>
+</section>
+<div id="" class="well" style="position: absolute; min-width: 200px; max-width: 100%; display: none;">
+    <dl>
+        <dt id="dic_title"></dt>
+        <dd id="dic_content"></dd>
+    </dl>
+</div>

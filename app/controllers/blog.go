@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"windigniter.com/app/services"
 	"fmt"
+	"strings"
 )
 
 type BlogController struct {
@@ -55,6 +56,16 @@ func (c *BlogController) Show() {
 		c.Data["Content"] = Translate(lang,err.Error())
 		c.Abort("Normal")
 	}
+	tags, _ := db.Tags(blog.Id, "")
+	if tags != nil {
+		c.Data["Tags"] = tags
+		var keywords []string
+		for _, tag := range tags {
+			keywords = append(keywords, tag.Name)
+		}
+		c.Data["Keywords"] = strings.Join(keywords, ",")
+	}
+
 	dateFormat, _ := db.Options("date_format")
 	c.Data["DateFormat"] = dateFormat
 

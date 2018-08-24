@@ -23,6 +23,8 @@ type WpUsers struct {
 	//Deleted				int8			`orm:"default(0)"`
 	UserPosts			[]*WpPosts		`orm:"reverse(many)"`
 	UserMetas			[]*WpUsermeta	`orm:"reverse(many)"`
+	UserBookNote		[]*BookNote		`orm:"reverse(many)"`
+	UserJapanNews		[]*JapanNews	`orm:"reverse(many)"`
 }
 func (u *WpUsers) TableName() string {
 	return preTable + "users"
@@ -63,6 +65,7 @@ type WpPosts struct {
 	PostMimeType		string			`orm:"size(100)"`
 	CommentCount		int64			`orm:"default(0)"`
 	PostMeta			[]*WpPostmeta	`orm:"reverse(many)"`
+	PostTags			[]*WpTermRelationships	`orm:"reverse(many)"`
 }
 func (u *WpPosts) TableName() string {
 	return preTable + "posts"
@@ -122,7 +125,8 @@ func (u *WpTermTaxonomy) TableIndex() [][]string {
 }
 
 type WpTermRelationships struct {
-	ObjectId				int64			`orm:"default(0)"`
+	Id						int64			`orm:"auto"`
+	ObjectId				*WpPosts		`orm:"default(0);rel(fk);on_delete(cascade)"`
 	TermTaxonomyId			int64			`orm:"default(0);index"`
 	TermOrder				int64			`orm:"default(0)"`
 }

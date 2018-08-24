@@ -36,7 +36,8 @@ type SessionUser struct {
 }
 
 
-var langs = []string {"zh-CN", "en-US"}
+//var langs = []string {"zh-CN", "en-US"}
+//var langs []string
 
 // all controllers init
 func (c *BaseController) Prepare()  {
@@ -59,9 +60,6 @@ func (c *BaseController) Prepare()  {
 	c.LayoutSections["Scripts"] = controller + "/layout_scripts."+c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
-	//active menu
-	c.Data["ActiveClass"] = controller
-
 	//page data
 	c.Data["Lang"] = c.CurrentLang()
 
@@ -70,20 +68,13 @@ func (c *BaseController) Prepare()  {
 	if c.Ctx.Request.Method == http.MethodPost {	//XSRF filter
 		c.CheckXSRFCookie()
 	}
-
+	//active menu
+	c.Data["ActiveClass"] = controller
 	c.Data["Refer"] = c.Ctx.Request.RequestURI
-	//TODO	 //unicode.In(action, []string{"login"})
-	/*if controller == "user" &&  action == "login" {
-		c.Data["Refer"] = ""
-	}*/
-
-
 	//if login
-	c.Data["User"] = c.GetSession("userInfo")
-	//if c.GetSession("userInfo") != nil {
-		//c.Data["User"] = SessionUser{c.GetSession("Uid").(int64), c.GetSession("UserLogin").(string), c.GetSession("UserNicename").(string), c.GetSession("UserEmail").(string), c.GetSession("UserRegistered").(string), c.GetSession("DisplayName").(string)}
-	// }
-	//fmt.Println(c.Ctx.Input.CruSession.SessionID())
+	c.Data["CurrentUser"] = c.GetSession("userInfo")
+	//runmode
+	c.Data["RunMode"] = beego.AppConfig.String("RunMode")
 }
 
 func (c *BaseController) CurrentLang() string {
@@ -112,6 +103,7 @@ func (c *BaseController) CurrentLang() string {
 	}
 	// 4. Default language is English.
 	if len(lang) == 0 {
+		langs, _ := libraries.CurrentDirs("resources/lang")
 		lang = langs[0]
 	}
 	if !hasCookie {

@@ -6,6 +6,7 @@ import (
 	"github.com/beego/i18n"
 		"html"
 	"windigniter.com/app/libraries"
+	"strings"
 )
 
 func main() {
@@ -16,8 +17,11 @@ func main() {
 
 	beego.AddFuncMap("i18n", i18n.Tr)
 	beego.AddFuncMap("html", html.UnescapeString)
-	beego.AddFuncMap("dateFormat", libraries.DateFormat)
+	//beego.AddFuncMap("dateFormat", libraries.DateFormat)
 	beego.AddFuncMap("wpUrlFormat", libraries.WordPressUrlFormat)
+	//beego.AddFuncMap("removeHtml", libraries.RemoveHtml)
+	beego.AddFuncMap("contains", strings.Contains)
+	beego.AddFuncMap("lower", strings.ToLower)
 
 	beego.Run()
 }

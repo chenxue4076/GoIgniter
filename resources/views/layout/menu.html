@@ -11,7 +11,10 @@
             <li class="nav-item {{if eq .ActiveClass "blog"}}active{{end}}">
                 <a class="nav-link" href="{{urlfor "BlogController.Index"}}">{{i18n .Lang "common.Blog" }} <span class="sr-only">(current)</span></a>
             </li>
-            {{if .User}}
+            <li class="nav-item">
+                <a class="nav-link" href="http://blog.windigniter.com">{{i18n .Lang "common.ITBlog" }} <span class="sr-only">(current)</span></a>
+            </li>
+            {{if .CurrentUser}}
                 <li class="nav-item">
                     <form method="post" action="{{urlfor "UserController.Logout"}}">
                     {{.XsrfData}}
@@ -19,7 +22,7 @@
                         <button type="submit" class="btn btn-link">{{i18n .Lang "user.logout"}}</button>
                     </form>
                 </li>
-                {{/*<li class="nav-item">{{ .User.Uid}} {{ .User.UserLogin}} {{ .User.UserEmail}} </li>*/}}
+                {{/*<li class="nav-item">{{ .CurrentUser.Uid}} {{ .CurrentUser.UserLogin}} {{ .CurrentUser.UserEmail}} </li>*/}}
             {{else}}
                 <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Login"}}">{{i18n .Lang "user.login"}}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{urlfor "UserController.Register"}}">{{i18n .Lang "user.register"}}</a></li>

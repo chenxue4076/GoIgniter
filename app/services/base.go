@@ -10,6 +10,8 @@ type BaseService struct {
 
 }
 
+var o orm.Ormer
+
 func init()  {
 	//fmt.Println("service base init")
 	if beego.AppConfig.String("RunMode") == beego.DEV {
@@ -20,5 +22,8 @@ func init()  {
 	orm.SetMaxIdleConns("default", 15)
 	orm.SetMaxOpenConns("default", 30)
 	//orm.DefaultTimeLoc
+
+	o = orm.NewOrm()
+	o.Using("default")
 }
 
