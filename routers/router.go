@@ -37,10 +37,14 @@ func init() {
 	beego.Router("/blog", &controllers.BlogController{}, "get:Index")
 
 	beego.Router("/japan", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/japannews", &controllers.JapanNewsController{}, "get:Index")
 	beego.Router("/japan/news", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/japannews/index", &controllers.JapanNewsController{}, "get:Index")
 	beego.Router("/japan/news/index", &controllers.JapanNewsController{}, "get:Index")
-	beego.Router("/japan/news/:id:int", &controllers.JapanNewsController{}, "get:Show")
-
+	beego.Router("/japannews/:id:int", &controllers.JapanNewsController{}, "*:Show")
+	beego.Router("/japan/news/:id:int", &controllers.JapanNewsController{}, "*:Show")
+	beego.Router("/japannews/show", &controllers.JapanNewsController{}, "*:Show")
+	beego.AutoRouter(&controllers.JapanNewsController{})
 	beego.AutoRouter(&controllers.MemberController{})
     //beego.Include(&controllers.UserController{})
 }

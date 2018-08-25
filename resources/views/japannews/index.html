@@ -4,7 +4,8 @@
         {{range $_, $news := .NewsList}}
             <article>
                 <header>
-                    <h2><a href="/japan/news/{{$news.Id}}">{{$news.TitleRuby | html}}</a></h2>
+                    {{/*<h2><a href="{{urlfor "JapanNewsController.Show" "id" $news.Id}}">{{$news.TitleRuby | html}}</a></h2>*/}}
+                    <h2><a href="/japannews/{{$news.Id}}">{{$news.TitleRuby | html}}</a></h2>
                 </header>
                 <section>{{$news.Content | html}}</section>
                 <footer><time>{{date $news.Pubdate "Y-m-d"}}</time></footer>

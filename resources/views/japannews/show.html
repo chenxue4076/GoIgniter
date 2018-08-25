@@ -1,5 +1,5 @@
 <section class="container">
-    <article>
+    <article class="article-detail">
         <header>
             <h2>{{.News.TitleRuby | html}}</h2>
             {{date .News.Pubdate "Y-m-d"}}
@@ -25,21 +25,29 @@
                         Your browser does not support the audio tag.
                     </audio>
                 {{else}}
-                    <iframe frameborder="no" width="80%" height="190px" scrolling="no" src="https://www3.nhk.or.jp/news/easy/player/audio.html?id={{.News.NewsId}}"></iframe>
+                    <div class="embed-responsive embed-responsive-21by9" style="height: 170px; width: 80%; max-width: 100%;">
+                        <iframe class="embed-responsive-item" src="https://www3.nhk.or.jp/news/easy/player/audio.html?id={{.News.NewsId}}"></iframe>
+                    </div>
                 {{end}}
                 <hr />
             {{end}}
-            {{if .News.Dict}}
-                <ul>
-
-                </ul>
+            {{if .Dict}}
+                <details>
+                    <summary>{{i18n .Lang "common.dictionary"}}</summary>
+                    <ul>
+                        {{range $k, $v := .Dict}}
+                            <li id="dic_{{$k}}">
+                                <strong>{{range $kk, $dict := $v}}{{if eq $kk 0}}{{$dict.hyouki}}{{end}}{{end}}</strong>
+                                <ol>
+                                {{range $kk, $dict := $v}}
+                                    <li>{{$dict.def | html}}</li>
+                                {{end}}
+                                </ol>
+                            </li>
+                        {{end}}
+                    </ul>
+                </details>
             {{end}}
         </footer>
     </article>
 </section>
-<div id="" class="well" style="position: absolute; min-width: 200px; max-width: 100%; display: none;">
-    <dl>
-        <dt id="dic_title"></dt>
-        <dd id="dic_content"></dd>
-    </dl>
-</div>

@@ -11,6 +11,9 @@
             <li class="nav-item {{if eq .ActiveClass "blog"}}active{{end}}">
                 <a class="nav-link" href="{{urlfor "BlogController.Index"}}">{{i18n .Lang "common.Blog" }} <span class="sr-only">(current)</span></a>
             </li>
+            <li class="nav-item {{if eq .ActiveClass "japannews"}}active{{end}}">
+                <a class="nav-link" href="{{urlfor "JapanNewsController.Index"}}">{{i18n .Lang "common.JapanEasyNews" }} <span class="sr-only">(current)</span></a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="http://blog.windigniter.com">{{i18n .Lang "common.ITBlog" }} <span class="sr-only">(current)</span></a>
             </li>

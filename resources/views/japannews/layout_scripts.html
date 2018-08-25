@@ -1,5 +1,18 @@
+
 <script>
     $(document).ready(function () {
-
+        if($(".article-detail").length > 0) {
+            $(".dicWin").attr("tabindex", 0).attr("role","button").attr("data-toggle", "popover").attr("data-trigger", "hover");
+            $(".dicWin").each(function () {
+                var id = $(this).attr("id").replace('id-', '');
+                var popover_header = $("#dic_"+id+" strong").html();
+                var popover_content = $("#dic_"+id+" ol").html();
+                $(this).attr("title", popover_header).attr("data-content", popover_content);
+            });
+            $(".dicWin").popover({
+                html: true,
+                placement:"auto",
+            })
+        }
     });
 </script>

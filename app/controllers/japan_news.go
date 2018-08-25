@@ -17,12 +17,9 @@ type JapanNewsDict struct {
 	Def		string			`json:"def"`
 	Hyouki	[]string		`json:"hyouki"`
 }
-type JapanNewsDictList struct {
-	Dict	[]*JapanNewsDict
-}
 
 func (c *JapanNewsController) Index() {
-	perPage := 2
+	perPage := 5
 	lang := c.CurrentLang()
 	pageString := c.GetString("page")
 	if pageString == "" {
@@ -38,10 +35,17 @@ func (c *JapanNewsController) Index() {
 	}
 	c.Data["Total"] = strconv.FormatInt(total64, 10)
 	c.Data["NewsList"] = newsList
+	c.Data["Title"] = Translate(lang,"japannews.title")
 }
 
 func (c *JapanNewsController) Show() {
-	id64, _ := strconv.ParseInt(c.Ctx.Input.Param(":id"), 10, 64)
+	var id64 int64
+	id := c.GetString("id")
+	if id == "" {
+		id64, _ = strconv.ParseInt(c.Ctx.Input.Param(":id"), 10, 64)
+	} else {
+		id64, _ = strconv.ParseInt(id, 10, 64)
+	}
 	lang := c.CurrentLang()
 	if id64 == 0 {
 		c.Data["Title"] = Translate(lang,"common.error404")
@@ -56,20 +60,14 @@ func (c *JapanNewsController) Show() {
 		c.Abort("Normal")
 	}
 
-
-
 	//dict json decode
-	dictList := JapanNewsDictList{}
-	fmt.Println("Dict is ",news.Dict)
 
-	var dat map[string]interface{}
-	err = json.Unmarshal([]byte(news.Dict), &dat)
+	var dictMap map[string]interface{}
+	err = json.Unmarshal([]byte(news.Dict), &dictMap)
 	if err != nil {
 		fmt.Println("err is ",err)
 	}
-	fmt.Println(" dat is ",dat)
-	fmt.Println(" result is ",dictList)
-	c.Data["Dict"] = dictList
+	c.Data["Dict"] = dictMap
 	c.Data["Title"] = news.Title
 	//c.Data["Description"] = libraries.RemoveHtml(news.DescribeRuby, false)
 	c.Data["Description"] = strings.Replace(beego.HTML2str(beego.Htmlunquote(news.DescribeRuby)), "\n", "", -1)
