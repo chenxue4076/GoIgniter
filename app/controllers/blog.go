@@ -5,6 +5,7 @@ import (
 	"windigniter.com/app/services"
 	"fmt"
 	"strings"
+	"windigniter.com/app/libraries"
 )
 
 type BlogController struct {
@@ -14,7 +15,7 @@ type BlogController struct {
 // @router /blog [get]
 // @router /blog/index [get]
 func (c *BlogController) Index() {
-	perPage := 2
+	perPage := 5
 	lang := c.CurrentLang()
 	pageString := c.GetString("page")
 	if pageString == "" {
@@ -22,7 +23,7 @@ func (c *BlogController) Index() {
 	}
 	page, _ := strconv.Atoi(pageString)
 	db := new(services.WpUsersService)
-	blogs, total64, err := db.BlogList(perPage, page)
+	blogs, total, err := db.BlogList(perPage, page)
 	if err != nil {
 		c.Data["Title"] = Translate(lang,"common.unknownError")
 		c.Data["Content"] = Translate(lang,err.Error())
@@ -35,8 +36,9 @@ func (c *BlogController) Index() {
 	//fmt.Println(libraries.DateFormat(timeTmp , "Y-m-d H:i:s"))
 	c.Data["PermalinkStructure"] = permalinkStructure
 
-	c.Data["Total"] = strconv.FormatInt(total64, 10)
+	c.Data["Total"] = total
 	c.Data["Blogs"] = blogs
+	c.Data["Pagination"] = libraries.PageList(total, page, perPage, c.Ctx.Request.URL.Path, 3, lang)
 }
 
 func (c *BlogController) Show() {

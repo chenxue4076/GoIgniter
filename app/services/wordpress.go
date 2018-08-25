@@ -109,10 +109,11 @@ func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
 }
 
 // blog new list
-func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, total int64, err error) {
+func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, total int, err error) {
 	wpPosts := models.WpPosts{}
 	qs := o.QueryTable(wpPosts.TableName()).Filter("post_status", "publish")
-	total, err = qs.Count()
+	total64, err := qs.Count()
+	total, _ = strconv.Atoi(strconv.FormatInt(total64, 10))
 	if err != nil {
 		fmt.Println("has err get total ?", err)
 		return blogs, total, libraries.DbError(err)
