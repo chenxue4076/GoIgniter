@@ -4,6 +4,7 @@ import (
 	"windigniter.com/app/models"
 	"fmt"
 	"windigniter.com/app/libraries"
+	"strconv"
 )
 
 type JapanNewsService struct {
@@ -15,13 +16,14 @@ type JapanNewsService struct {
 	o.Using("default")
 }*/
 
-func (s *JapanNewsService) JapanNewsList(limit, page, status int) (newsList []*models.JapanNews, total int64, err error) {
+func (s *JapanNewsService) JapanNewsList(limit, page, status int) (newsList []*models.JapanNews, total int, err error) {
 	japanNews := models.JapanNews{}
 	qs := o.QueryTable(japanNews.TableName())
 	if status > -1 {
 		qs = qs.Filter("status", 1)
 	}
-	total, err = qs.Count()
+	total64, err := qs.Count()
+	total, _ = strconv.Atoi(strconv.FormatInt(total64, 10))
 	if err != nil {
 		fmt.Println("has err get total ?", err)
 		return newsList, total, libraries.DbError(err)

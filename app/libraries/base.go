@@ -145,4 +145,71 @@ func WordPressUrlFormat(datetime time.Time, slug string, blogId int64, format st
 	tmpFormat = strings.Replace(tmpFormat,"%postname%", slug, -1)
 	return tmpFormat
 }
+// page
+func PageList(count, pageNo, pageSize int, url string, showNum int, lang string) string {
+	param := "page="
+	pageInfo := param + strconv.Itoa(pageNo)
+	if strings.Contains(url, pageInfo) {
+		url = strings.Replace(url, "?" + pageInfo, "", -1)
+		url = strings.Replace(url, "&" + pageInfo, "", -1)
+	}
+	connectSign := "?"
+	if strings.Contains(url, connectSign) {
+		connectSign = "&"
+	}
+	if lang == "" {
+		lang = "zh-CN"
+	}
+	if showNum == 0 {
+		showNum = 3
+	}
+	totalPage := count / pageSize
+	if count % pageSize > 0 {
+		totalPage = count / pageSize + 1
+	}
 
+	firstPageString := `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + "1" + `">` + i18n.Tr(lang, "common.firstPage") + `</a></li>`
+	if pageNo <= 1 {
+		//firstPageString = `<li class="page-item disabled"><a class="page-link" tabindex="-1" href="` + url + connectSign + param + "1" + `">` + i18n.Tr(lang, "common.firstPage") + `</a></li>`
+		firstPageString = ""
+	}
+	lastPageString := `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + strconv.Itoa(totalPage) + `">` + i18n.Tr(lang, "common.lastPage") + `</a></li>`
+	if pageNo >= totalPage {
+		//lastPageString = `<li class="page-item disabled"><a class="page-link" tabindex="-1" href="` + url + connectSign + param + strconv.Itoa(totalPage) + `">` + i18n.Tr(lang, "common.lastPage") + `</a></li>`
+		lastPageString = ""
+	}
+
+	previousPageString := `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + strconv.Itoa(pageNo - 1) + `">` + i18n.Tr(lang, "common.previousPage") + `</a></li>`
+	if pageNo <= 2 {
+		previousPageString = ""
+	}
+	nextPageString := `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + strconv.Itoa(pageNo  +  1) + `">` + i18n.Tr(lang, "common.nextPage") + `</a></li>`
+	if pageNo >= totalPage - 2 {
+		nextPageString = ""
+	}
+
+	prePageString := ""
+	startPageSlid := pageNo - showNum
+	if startPageSlid < 1 {
+		startPageSlid = 1
+	} else if startPageSlid > 1 {
+		prePageString = `<li class="page-item disabled"><span class="page-link">...</span></li>`
+	}
+	for i := startPageSlid; i < pageNo; i++ {
+		prePageString += `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + strconv.Itoa(i) + `">` + strconv.Itoa(i) + `</a></li>`
+	}
+
+	subPageString := ""
+	endPageSlid := pageNo + showNum
+	if endPageSlid > totalPage {
+		endPageSlid = totalPage
+	} else if endPageSlid < totalPage {
+		subPageString = `<li class="page-item disabled"><span class="page-link">...</span></li>`
+	}
+	for i := endPageSlid; i > pageNo; i-- {
+		subPageString = `<li class="page-item"><a class="page-link" href="` + url + connectSign + param + strconv.Itoa(i)+`">` + strconv.Itoa(i) + `</a></li>` + subPageString
+	}
+	currentPageString := `<li class="page-item active"><span class="page-link">` + strconv.Itoa(pageNo) + `<span class="sr-only">(current)</span></span></li>`
+	pageList := firstPageString + previousPageString + prePageString + currentPageString + subPageString + nextPageString + lastPageString
+	return `<nav class="page" aria-label="` + i18n.Tr(lang, "common.pageAriaLabel") + `"><ul class="pagination justify-content-center">` + pageList + `</ul></nav>`
+}

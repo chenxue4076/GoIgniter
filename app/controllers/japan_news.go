@@ -7,6 +7,7 @@ import (
 	"strings"
 	"encoding/json"
 	"fmt"
+	"windigniter.com/app/libraries"
 )
 
 type JapanNewsController struct {
@@ -27,15 +28,17 @@ func (c *JapanNewsController) Index() {
 	}
 	page, _ := strconv.Atoi(pageString)
 	db := new(services.JapanNewsService)
-	newsList, total64, err := db.JapanNewsList(perPage, page, 1)
+	newsList, total, err := db.JapanNewsList(perPage, page, 1)
 	if err != nil {
 		c.Data["Title"] = Translate(lang,"common.unknownError")
 		c.Data["Content"] = Translate(lang,err.Error())
 		c.Abort("Normal")
 	}
-	c.Data["Total"] = strconv.FormatInt(total64, 10)
+	c.Data["Total"] = total
 	c.Data["NewsList"] = newsList
 	c.Data["Title"] = Translate(lang,"japannews.title")
+	//fmt.Println(c.Ctx.Request.URL, c.Ctx.Request.RequestURI, c.Ctx.Request.URL.Path)
+	c.Data["Pagination"] = libraries.PageList(total, page, perPage, c.Ctx.Request.URL.Path, 3, lang)
 }
 
 func (c *JapanNewsController) Show() {

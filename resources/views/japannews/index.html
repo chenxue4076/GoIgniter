@@ -1,5 +1,4 @@
 <div class="container">
-    <p>{{.Total}}</p>
     {{if .NewsList}}
         {{range $_, $news := .NewsList}}
             <article>
@@ -12,4 +11,5 @@
             </article>
         {{end}}
     {{end}}
+    {{.Pagination | html}}
 </div>
