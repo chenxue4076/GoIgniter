@@ -1,0 +1,12 @@
+<section class="container">
+    <div class="alert {{if .Error}}alert-danger{{end}} {{if .Success}}alert-success{{end}}" role="alert">
+        {{if .Error}}
+            {{range $_,$err := .Error}}
+                {{$err.Message}}<br />
+            {{end}}
+        {{end}}
+        {{if .Success}}
+            {{.Success}}<br />
+        {{end}}
+    </div>
+</section>
