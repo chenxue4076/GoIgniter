@@ -15,7 +15,6 @@ import (
 	"bytes"
 	"windigniter.com/app/models"
 	"golang.org/x/net/html"
-	"io"
 )
 
 type JapanNewsController struct {
@@ -153,7 +152,17 @@ func (c *JapanNewsController) Crawl() {
 			}
 		}
 		if ! hasError && easyNews.Status == 0 {		//has not saved to japan news
-
+			content, err := crawlJapanNewsContent(easyNews.NewsId)
+			if err != nil {
+				fmt.Println("crawlJapanNewsContent returns err", err)
+				continue
+			}
+			dictJson, err := crawlJapanNewsDict(easyNews.NewsId)
+			if err != nil {
+				fmt.Println("crawlJapanNewsDict returns err", err)
+				continue
+			}
+			japanNews := models.JapanNews{ NewsId:easyNews.NewsId, Title:easyNews.Title, TitleRuby:easyNews.TitleWithRuby, DescribeRuby:easyNews.OutlineWithRuby, Views:0, Featured:easyNews.NewsWebImageUri, Media:easyNews.NewsWebVoiceUri, Content:content, Dict:dictJson, Ding:1,Cai:1, Pubdate:time.Now() , Status:1}
 
 			//microTime := strconv.FormatInt(time.Now().UnixNano(),  10)
 			//http://www3.nhk.or.jp/news/easy/k10010833901000/k10010833901000.out.dic?date=1484119973650    //dictionary url
@@ -202,12 +211,12 @@ func crawlJapanNewsContent(newsId string) (result string, err error) {
 			for _, a := range n.Attr {
 				if a.Key == "id" && a.Val == "js-article-body" {
 					hasFind = true
-					html.Render(buf, n)
-					/*for nc := n.FirstChild; nc != nil; nc = nc.NextSibling {
-						fmt.Println(nc.Data)
-						buf.WriteString(nc.Data)
+					buf := new(bytes.Buffer)
+					err = html.Render(buf, n)
+					if err != nil {
+						fmt.Println("rand err", err)
 					}
-					result = buf.String()*/
+					result = buf.String()
 					break
 				}
 			}
