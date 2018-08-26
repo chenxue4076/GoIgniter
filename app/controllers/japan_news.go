@@ -13,6 +13,9 @@ import (
 	"github.com/astaxie/beego/validation"
 	"io/ioutil"
 	"bytes"
+	"windigniter.com/app/models"
+	"golang.org/x/net/html"
+	"io"
 )
 
 type JapanNewsController struct {
@@ -129,5 +132,95 @@ func (c *JapanNewsController) Crawl() {
 		c.Data["Error"] = valid.Errors
 	}
 	fmt.Println(topList)
-}
+	db := new(services.JapanNewsService)
+	for _, item := range topList {
+		if item.NewsId == "" {
+			continue
+		}
+		hasError := false
+		easyNews, err := db.JapanEasyNewsDetail(item.NewsId)
+		if err != nil {
+			if err.Error() == "common.ormErrNoRows" {
+				easyNews := models.JapanEasyNews{NewsId:item.NewsId, NewsPrearrangedTime:item.NewsPrearrangedTime, Title:item.Title, TitleWithRuby:item.TitleWithRuby, OutlineWithRuby:item.OutlineWithRuby, NewsWebImageUri:item.NewsWebImageUri, NewsWebMovieUri:item.NewsWebMovieUri, NewsWebVoiceUri:item.NewsEasyVoiceUri, Status:0 }
+				_, err := db.SaveEasyNews(easyNews)
+				if err != nil {
+					hasError = true
+					fmt.Println("save japan easy news err :",err)
+				}
+			} else {
+				hasError = true
+				fmt.Println("for topList hasEasy err :",err)
+			}
+		}
+		if ! hasError && easyNews.Status == 0 {		//has not saved to japan news
 
+
+			//microTime := strconv.FormatInt(time.Now().UnixNano(),  10)
+			//http://www3.nhk.or.jp/news/easy/k10010833901000/k10010833901000.out.dic?date=1484119973650    //dictionary url
+			//dictUrl := preNewsUrl + ".out.dic?date=" + beego.Substr(microTime, 0, 13)
+
+		}
+	}
+}
+// view japan news content in japan news web site
+func (c *JapanNewsController) NewsContent()  {
+	valid := validation.Validation{}
+	newsId := c.GetString("newsid")
+	if newsId == "" {
+		valid.SetError("", "No newsId")
+		c.Data["Error"] = valid.Errors
+	}
+	result, err := crawlJapanNewsContent(newsId)
+	if err != nil {
+		valid.SetError("", err.Error())
+		c.Data["Error"] = valid.Errors
+	}
+	c.Data["Content"] = result
+}
+// analyze japan news content
+func crawlJapanNewsContent(newsId string) (result string, err error) {
+	preNewsUrl := "https://www3.nhk.or.jp/news/easy/" + newsId + "/" + newsId
+	articleUrl := preNewsUrl + ".html"
+	fmt.Println("content url ", articleUrl)
+	respArticle, err := http.Get(articleUrl)
+	if err != nil {
+		fmt.Println("get article resp error ",err)
+		return result, err
+	}
+	defer respArticle.Body.Close()
+	// japan news content
+	doc, err := html.Parse(respArticle.Body)
+	if err != nil {
+		fmt.Println("get body article error ",err)
+		return result, err
+	}
+	hasFind := false
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "div" {
+			//fmt.Println(n)
+			for _, a := range n.Attr {
+				if a.Key == "id" && a.Val == "js-article-body" {
+					hasFind = true
+					html.Render(buf, n)
+					/*for nc := n.FirstChild; nc != nil; nc = nc.NextSibling {
+						fmt.Println(nc.Data)
+						buf.WriteString(nc.Data)
+					}
+					result = buf.String()*/
+					break
+				}
+			}
+		}
+		if ! hasFind {
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				f(c)
+			}
+		}
+	}
+	f(doc)
+	if hasFind {
+		return result, nil
+	}
+	return result, err
+}

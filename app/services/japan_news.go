@@ -15,7 +15,7 @@ type JapanNewsService struct {
 	o = orm.NewOrm()
 	o.Using("default")
 }*/
-
+// japan news list
 func (s *JapanNewsService) JapanNewsList(limit, page, status int) (newsList []*models.JapanNews, total int, err error) {
 	japanNews := models.JapanNews{}
 	qs := o.QueryTable(japanNews.TableName())
@@ -36,7 +36,7 @@ func (s *JapanNewsService) JapanNewsList(limit, page, status int) (newsList []*m
 	}
 	return newsList, total, nil
 }
-
+//japan news detail
 func (s *JapanNewsService) JapanNewsDetail(Id int64) (news models.JapanNews, err error) {
 	//wpUser := models.WpUsers{}
 	japanNews := models.JapanNews{}
@@ -46,4 +46,29 @@ func (s *JapanNewsService) JapanNewsDetail(Id int64) (news models.JapanNews, err
 		return news, libraries.DbError(err)
 	}
 	return news, nil
+}
+//japan easy news detail
+func (s *JapanNewsService) JapanEasyNewsDetail(newsId string) (news models.JapanEasyNews, err error) {
+	easyNews := models.JapanEasyNews{}
+	err = o.QueryTable(easyNews.TableName()).Filter("NewsId", newsId).One(&news)
+	if err != nil {
+		return news, libraries.DbError(err)
+	}
+	return news, nil
+}
+// japan easy news insert
+func (s *JapanNewsService) SaveEasyNews(news models.JapanEasyNews) (id int, err error)  {
+	id64, err := o.Insert(&news)
+	if err != nil {
+		return 0, libraries.DbError(err)
+	}
+	id, _ = strconv.Atoi(strconv.FormatInt(id64, 10))
+	return id, err
+}
+// japan easy news update
+func (s *JapanNewsService) UpdateEasyNews(news models.JapanEasyNews, cols ...string) error {
+	if _, err := o.Update(&news, cols...); err != nil {
+		return err
+	}
+	return nil
 }
