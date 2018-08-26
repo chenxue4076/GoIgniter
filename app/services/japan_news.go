@@ -72,3 +72,12 @@ func (s *JapanNewsService) UpdateEasyNews(news models.JapanEasyNews, cols ...str
 	}
 	return nil
 }
+// japan easy news insert
+func (s *JapanNewsService) SaveJapanNews(news models.JapanNews) (id int, err error)  {
+	id64, err := o.Insert(&news)
+	if err != nil {
+		return 0, libraries.DbError(err)
+	}
+	id, _ = strconv.Atoi(strconv.FormatInt(id64, 10))
+	return id, err
+}

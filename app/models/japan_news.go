@@ -15,7 +15,7 @@ type JapanEasyNews struct {
 	OutlineWithRuby		string			`orm:"type(text)"`
 	NewsWebImageUri		string			`orm:"size(255)"`
 	NewsWebMovieUri		string			`orm:"size(255)"`
-	NewsWebVoiceUri		string			`orm:"size(255)"`
+	NewsEasyVoiceUri	string			`orm:"size(255)"`
 	Status				int				`orm:"default(0)"`
 	CreatedAt			time.Time		`orm:"auto_now_add;type(datetime)"`
 	UpdatedAt			time.Time		`orm:"auto_now;type(datetime)"`
@@ -26,7 +26,7 @@ func (u *JapanEasyNews) TableName() string {
 
 type JapanNews struct {
 	Id					int64			`orm:"column(id);auto"`				//The primary key id
-	AuthorId			*WpUsers		`orm:"column(author_id);default(0);index;rel(fk);on_delete(do_nothing)"`
+	AuthorId			int64			`orm:"default(0)"`
 	NewsId				string			`orm:"size(50);index"`
 	Title				string			`orm:"size(255)"`
 	TitleRuby			string			`orm:"type(text)"`

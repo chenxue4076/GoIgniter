@@ -130,7 +130,7 @@ func (c *JapanNewsController) Crawl() {
 		valid.SetError("", err.Error())
 		c.Data["Error"] = valid.Errors
 	}
-	fmt.Println(topList)
+	//fmt.Println(topList)
 	db := new(services.JapanNewsService)
 	for _, item := range topList {
 		if item.NewsId == "" {
@@ -140,7 +140,7 @@ func (c *JapanNewsController) Crawl() {
 		easyNews, err := db.JapanEasyNewsDetail(item.NewsId)
 		if err != nil {
 			if err.Error() == "common.ormErrNoRows" {
-				easyNews := models.JapanEasyNews{NewsId:item.NewsId, NewsPrearrangedTime:item.NewsPrearrangedTime, Title:item.Title, TitleWithRuby:item.TitleWithRuby, OutlineWithRuby:item.OutlineWithRuby, NewsWebImageUri:item.NewsWebImageUri, NewsWebMovieUri:item.NewsWebMovieUri, NewsWebVoiceUri:item.NewsEasyVoiceUri, Status:0 }
+				easyNews = models.JapanEasyNews{ NewsId:item.NewsId, NewsPrearrangedTime:item.NewsPrearrangedTime, Title:item.Title, TitleWithRuby:item.TitleWithRuby, OutlineWithRuby:item.OutlineWithRuby, NewsWebImageUri:item.NewsWebImageUri, NewsWebMovieUri:item.NewsWebMovieUri, NewsEasyVoiceUri:item.NewsEasyVoiceUri, Status:0 }
 				_, err := db.SaveEasyNews(easyNews)
 				if err != nil {
 					hasError = true
@@ -152,22 +152,31 @@ func (c *JapanNewsController) Crawl() {
 			}
 		}
 		if ! hasError && easyNews.Status == 0 {		//has not saved to japan news
-			content, err := crawlJapanNewsContent(easyNews.NewsId)
+			content, err := crawlJapanNewsContent(item.NewsId)
 			if err != nil {
 				fmt.Println("crawlJapanNewsContent returns err", err)
 				continue
 			}
-			dictJson, err := crawlJapanNewsDict(easyNews.NewsId)
+			dictJson, err := crawlJapanNewsDict(item.NewsId)
 			if err != nil {
 				fmt.Println("crawlJapanNewsDict returns err", err)
 				continue
 			}
-			japanNews := models.JapanNews{ NewsId:easyNews.NewsId, Title:easyNews.Title, TitleRuby:easyNews.TitleWithRuby, DescribeRuby:easyNews.OutlineWithRuby, Views:0, Featured:easyNews.NewsWebImageUri, Media:easyNews.NewsWebVoiceUri, Content:content, Dict:dictJson, Ding:1,Cai:1, Pubdate:time.Now() , Status:1}
-
-			//microTime := strconv.FormatInt(time.Now().UnixNano(),  10)
-			//http://www3.nhk.or.jp/news/easy/k10010833901000/k10010833901000.out.dic?date=1484119973650    //dictionary url
-			//dictUrl := preNewsUrl + ".out.dic?date=" + beego.Substr(microTime, 0, 13)
-
+			japanNews := models.JapanNews{ AuthorId:1, NewsId:easyNews.NewsId, Title:easyNews.Title, TitleRuby:easyNews.TitleWithRuby, DescribeRuby:easyNews.OutlineWithRuby, Views:0, Featured:easyNews.NewsWebImageUri, Media:easyNews.NewsEasyVoiceUri, Content:content, Dict:dictJson, Ding:1,Cai:1, Pubdate:time.Now() , Status:1}
+			//fmt.Println(japanNews)
+			id, err := db.SaveJapanNews(japanNews)
+			if err != nil {
+				fmt.Println("save japan news err", err)
+				continue
+			}
+			if id > 0 {
+				easyNews.Status = 1
+				err = db.UpdateEasyNews(easyNews, "status")
+				if err != nil {
+					fmt.Println("update japan easy news status err", easyNews.NewsId, err)
+					continue
+				}
+			}
 		}
 	}
 }
@@ -179,7 +188,13 @@ func (c *JapanNewsController) NewsContent()  {
 		valid.SetError("", "No newsId")
 		c.Data["Error"] = valid.Errors
 	}
-	result, err := crawlJapanNewsContent(newsId)
+	/*result, err := crawlJapanNewsContent(newsId)
+	if err != nil {
+		valid.SetError("", err.Error())
+		c.Data["Error"] = valid.Errors
+	}
+	c.Data["Content"] = result*/
+	result, err := crawlJapanNewsDict(newsId)
 	if err != nil {
 		valid.SetError("", err.Error())
 		c.Data["Error"] = valid.Errors
@@ -232,4 +247,31 @@ func crawlJapanNewsContent(newsId string) (result string, err error) {
 		return result, nil
 	}
 	return result, err
+}
+
+// get japan news dictionary
+func crawlJapanNewsDict(newsId string) (result string, err error) {
+	microTime := strconv.FormatInt(time.Now().UnixNano(),  10)
+	preNewsUrl := "https://www3.nhk.or.jp/news/easy/" + newsId + "/" + newsId
+	dictUrl := preNewsUrl + ".out.dic?date=" + beego.Substr(microTime, 0, 13)
+	fmt.Println(dictUrl)
+	respDict, err := http.Get(dictUrl)
+	if err != nil {
+		fmt.Println("get article resp error ",err)
+		return result, err
+	}
+	defer respDict.Body.Close()
+	body, err := ioutil.ReadAll(respDict.Body)
+	if err != nil {
+		fmt.Println(err)
+		return "", nil
+	}
+	bodyString := strings.Replace(string(body), "\n", "", -1)
+	bodyString = strings.Replace(bodyString, " ", "", -1)
+	jsonByte := []byte(bodyString)
+	//fmt.Println(bodyString)
+	//fmt.Println([]byte(bodyString))
+	jsonData := jsonByte[21:(len(jsonByte) - 2)]
+	//fmt.Println(jsonData)
+	return string(jsonData), err
 }

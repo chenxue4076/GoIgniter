@@ -24,7 +24,6 @@ type WpUsers struct {
 	UserPosts			[]*WpPosts		`orm:"reverse(many)"`
 	UserMetas			[]*WpUsermeta	`orm:"reverse(many)"`
 	UserBookNote		[]*BookNote		`orm:"reverse(many)"`
-	UserJapanNews		[]*JapanNews	`orm:"reverse(many)"`
 }
 func (u *WpUsers) TableName() string {
 	return preTable + "users"
