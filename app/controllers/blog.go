@@ -38,6 +38,7 @@ func (c *BlogController) Index() {
 
 	c.Data["Total"] = total
 	c.Data["Blogs"] = blogs
+	c.Data["Title"] = Translate(lang, "common.Blog")
 	c.Data["Pagination"] = libraries.PageList(total, page, perPage, c.Ctx.Request.URL.Path, 3, lang)
 }
 
