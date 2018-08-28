@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <script type="text/javascript">
+        function getUrlVars(url){
+            var vars = [], hash;
+            if(url == '' || url == undefined){
+                url = window.location.href;
+            }
+            var hashes = url.slice(url.indexOf('?') + 1).split('&');
+            for(var i = 0; i < hashes.length; i++)
+            {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+        function appendSorce(){
+            var videoSrc = 'https://nhks-vh.akamaihd.net/i/news/easy/' + getUrlVars()['id'] + '.mp4/master.m3u8';
+            var videoId = getUrlVars()['id'];
+            if(videoId!=""){
+                var videoHtml = '<div class="nol_audio_player" data-hlsurl="' + videoSrc + '" data-type="ONDEMAND" data-skin="blue" data-title="" data-autoplay="true"></div>';
+                document.write(videoHtml);
+            }
+        }
+    </script>
+</head>
+<body>
+<script type="text/javascript">
+    appendSorce();
+</script>
+<script type="text/javascript" src="/common/aplayer/js/nol_audioplayer.js" charset="utf-8"></script>
+</body>
+</html>
