@@ -16,7 +16,8 @@ func init() {
 	beego.ErrorController(&controllers.ErrorsController{})
 
 	//route map
-    beego.Router("/", &controllers.JapanNewsController{}, "get:Index")
+	beego.Router("/", &controllers.MainController{}, "get:Index")
+    //beego.Router("/", &controllers.JapanNewsController{}, "get:Index")
 	//beego.Router("/login", &controllers.UserController{}, "get:LoginForm;post:LoginPost")
 	beego.Router("/login", &controllers.UserController{}, "get,post:Login")
 	beego.Router("/logout", &controllers.UserController{}, "post:Logout")
