@@ -1,0 +1,27 @@
+pre.prettyprint {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color:#6a737d;
+}
+
+/*ol.linenums li.L0,
+ol.linenums li.L1,
+ol.linenums li.L2,
+ol.linenums li.L3,
+ol.linenums li.L4,
+ol.linenums li.L5,
+ol.linenums li.L6,
+ol.linenums li.L7,
+ol.linenums li.L8 {
+    list-style-type:decimal-leading-zero;
+}*/
+
+pre.prettyprint ol.linenums li {
+    list-style-type: decimal-leading-zero;
+    padding-left: 3px;
+}
+pre.prettyprint ol.linenums li:nth-child(even){
+    background: none;
+}
