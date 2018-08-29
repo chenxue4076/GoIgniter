@@ -78,6 +78,14 @@ func (c *JapanNewsController) Show() {
 	c.Data["Description"] = strings.Replace(beego.HTML2str(beego.Htmlunquote(news.DescribeRuby)), "\n", "", -1)
 	c.Data["News"] = news
 }
+//japan news radio player
+func (c *JapanNewsController) Player() {
+	c.LayoutSections["HeaderMeta"] = ""
+	c.LayoutSections["HtmlHead"] = ""
+	c.LayoutSections["HtmlFoot"] = ""
+	c.LayoutSections["Scripts"] = ""
+	c.LayoutSections["SideBar"] = ""
+}
 // struct japan news
 type JapanNewsTopListItem struct {
 	TopPriorityNumber					string			`json:"top_priority_number"`
@@ -100,7 +108,6 @@ type JapanNewsTopListItem struct {
 	NewsEasyMovieUri					string			`json:"news_easy_movie_uri"`
 	NewsEasyVoiceUri					string			`json:"news_easy_voice_uri"`
 }
-
 // background crawl easy news
 //http://www3.nhk.or.jp/news/easy/top-list.json?_=1484116080539 //最新7条
 //http://www3.nhk.or.jp/news/easy/news-list.json?_=1484116080540    一周列表
@@ -248,7 +255,6 @@ func crawlJapanNewsContent(newsId string) (result string, err error) {
 	}
 	return result, err
 }
-
 // get japan news dictionary
 func crawlJapanNewsDict(newsId string) (result string, err error) {
 	microTime := strconv.FormatInt(time.Now().UnixNano(),  10)
