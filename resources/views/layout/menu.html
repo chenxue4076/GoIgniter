@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">{{i18n .Lang "common.siteName" }}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -15,7 +15,7 @@
                 <a class="nav-link" href="{{urlfor "JapanNewsController.Index"}}">{{i18n .Lang "common.JapanEasyNews" }} <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="http://blog.windigniter.com">{{i18n .Lang "common.ITBlog" }} <span class="sr-only">(current)</span></a>
+                <a class="nav-link" target="_blank" href="http://blog.windigniter.com">{{i18n .Lang "common.ITBlog" }} <span class="sr-only">(current)</span></a>
             </li>
             {{if .CurrentUser}}
                 <li class="nav-item">
