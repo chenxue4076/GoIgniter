@@ -12,6 +12,6 @@ func (c *MemberController) Center() {
 	c.Data["Refer"] = beego.URLFor("UserController.Login")
 }
 
-func (c *MemberController) Index()  {
-	
+func (c *MemberController) Index() {
+
 }

@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"strings"
 	"github.com/beego/i18n"
-	"sync"
-	"net/http"
 	"html/template"
+	"net/http"
+	"strings"
+	"sync"
 	"time"
 	"windigniter.com/app/libraries"
 )
@@ -18,8 +18,8 @@ type BaseController struct {
 }
 
 type JsonOut struct {
-	Err bool
-	Result JsonMessage
+	Err      bool
+	Result   JsonMessage
 	Redirect string
 }
 type JsonMessage struct {
@@ -27,20 +27,19 @@ type JsonMessage struct {
 }
 
 type SessionUser struct {
-	Uid				int64
-	UserLogin		string
-	UserNicename	string
-	UserEmail		string
-	UserRegistered	time.Time
-	DisplayName		string
+	Uid            int64
+	UserLogin      string
+	UserNicename   string
+	UserEmail      string
+	UserRegistered time.Time
+	DisplayName    string
 }
-
 
 //var langs = []string {"zh-CN", "en-US"}
 //var langs []string
 
 // all controllers init
-func (c *BaseController) Prepare()  {
+func (c *BaseController) Prepare() {
 	//multi language load
 	once.Do(libraries.LoadLangs)
 
@@ -51,13 +50,13 @@ func (c *BaseController) Prepare()  {
 	action := strings.ToLower(actionPre)
 
 	//page frame shows
-	c.TplName = controller + "/" + action + "." +  c.TplExt
-	c.Layout = "layout/common."+c.TplExt
+	c.TplName = controller + "/" + action + "." + c.TplExt
+	c.Layout = "layout/common." + c.TplExt
 	c.LayoutSections = make(map[string]string)
-	c.LayoutSections["HeaderMeta"] = controller + "/layout_meta."+c.TplExt
-	c.LayoutSections["HtmlHead"] = controller + "/layout_header."+c.TplExt
-	c.LayoutSections["HtmlFoot"] = controller + "/layout_footer."+c.TplExt
-	c.LayoutSections["Scripts"] = controller + "/layout_scripts."+c.TplExt
+	c.LayoutSections["HeaderMeta"] = controller + "/layout_meta." + c.TplExt
+	c.LayoutSections["HtmlHead"] = controller + "/layout_header." + c.TplExt
+	c.LayoutSections["HtmlFoot"] = controller + "/layout_footer." + c.TplExt
+	c.LayoutSections["Scripts"] = controller + "/layout_scripts." + c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
 	//page data
@@ -65,7 +64,7 @@ func (c *BaseController) Prepare()  {
 
 	//XSRF attack protect
 	c.Data["XsrfData"] = template.HTML(c.XSRFFormHTML())
-	if c.Ctx.Request.Method == http.MethodPost {	//XSRF filter
+	if c.Ctx.Request.Method == http.MethodPost { //XSRF filter
 		c.CheckXSRFCookie()
 	}
 	//active menu
@@ -112,7 +111,6 @@ func (c *BaseController) CurrentLang() string {
 	return lang
 }
 
-func Translate(lang,input string, args ...interface{}) string {
+func Translate(lang, input string, args ...interface{}) string {
 	return i18n.Tr(lang, input, args)
 }
-

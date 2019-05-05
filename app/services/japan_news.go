@@ -1,10 +1,10 @@
 package services
 
 import (
-	"windigniter.com/app/models"
 	"fmt"
-	"windigniter.com/app/libraries"
 	"strconv"
+	"windigniter.com/app/libraries"
+	"windigniter.com/app/models"
 )
 
 type JapanNewsService struct {
@@ -36,6 +36,7 @@ func (s *JapanNewsService) JapanNewsList(limit, page, status int) (newsList []*m
 	}
 	return newsList, total, nil
 }
+
 //japan news detail
 func (s *JapanNewsService) JapanNewsDetail(Id int64) (news models.JapanNews, err error) {
 	//wpUser := models.WpUsers{}
@@ -47,6 +48,7 @@ func (s *JapanNewsService) JapanNewsDetail(Id int64) (news models.JapanNews, err
 	}
 	return news, nil
 }
+
 //japan easy news detail
 func (s *JapanNewsService) JapanEasyNewsDetail(newsId string) (news models.JapanEasyNews, err error) {
 	easyNews := models.JapanEasyNews{}
@@ -56,8 +58,9 @@ func (s *JapanNewsService) JapanEasyNewsDetail(newsId string) (news models.Japan
 	}
 	return news, nil
 }
+
 // japan easy news insert
-func (s *JapanNewsService) SaveEasyNews(news models.JapanEasyNews) (id int, err error)  {
+func (s *JapanNewsService) SaveEasyNews(news models.JapanEasyNews) (id int, err error) {
 	id64, err := o.Insert(&news)
 	if err != nil {
 		return 0, libraries.DbError(err)
@@ -65,6 +68,7 @@ func (s *JapanNewsService) SaveEasyNews(news models.JapanEasyNews) (id int, err 
 	id, _ = strconv.Atoi(strconv.FormatInt(id64, 10))
 	return id, err
 }
+
 // japan easy news update
 func (s *JapanNewsService) UpdateEasyNews(news models.JapanEasyNews, cols ...string) error {
 	if _, err := o.Update(&news, cols...); err != nil {
@@ -72,8 +76,9 @@ func (s *JapanNewsService) UpdateEasyNews(news models.JapanEasyNews, cols ...str
 	}
 	return nil
 }
+
 // japan easy news insert
-func (s *JapanNewsService) SaveJapanNews(news models.JapanNews) (id int, err error)  {
+func (s *JapanNewsService) SaveJapanNews(news models.JapanNews) (id int, err error) {
 	id64, err := o.Insert(&news)
 	if err != nil {
 		return 0, libraries.DbError(err)

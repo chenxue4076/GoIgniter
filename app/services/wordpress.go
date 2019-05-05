@@ -1,16 +1,16 @@
 package services
 
 import (
+	"errors"
+	"fmt"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql" // import your used driver
-	"windigniter.com/app/models"
-	"fmt"
-	"regexp"
 	"golang.org/x/crypto/bcrypt"
-	"errors"
-	"windigniter.com/app/libraries"
-	"time"
+	"regexp"
 	"strconv"
+	"time"
+	"windigniter.com/app/libraries"
+	"windigniter.com/app/models"
 )
 
 type WpUsersService struct {
@@ -26,7 +26,7 @@ type WpUsersService struct {
 
 //wordpress options
 func (s *WpUsersService) Options(optionName string) (optionValue string, err error) {
-	options := models.WpOptions{OptionName:optionName}
+	options := models.WpOptions{OptionName: optionName}
 	err = o.Read(&options, "OptionName")
 	if err != nil {
 		fmt.Println("has err ?", err)
@@ -52,21 +52,22 @@ func (s *WpUsersService) LoginCheck(username, password string) (user models.WpUs
 		pwderr := bcrypt.CompareHashAndPassword([]byte(user.UserPass), []byte(password))
 		if pwderr != nil {
 			fmt.Println("password err ?", pwderr)
-			return user,"password", libraries.HashError(pwderr)
+			return user, "password", libraries.HashError(pwderr)
 		}
 		fmt.Println(user)
 		return user, "username", nil
 	}
 	return user, "", nil
 }
+
 //wether user has exist
 func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err error) {
 	match, _ := regexp.MatchString(`\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*`, username)
 	if match {
-		user = models.WpUsers{UserEmail:username}
+		user = models.WpUsers{UserEmail: username}
 		err = o.Read(&user, "UserEmail")
 	} else {
-		user = models.WpUsers{UserLogin:username}
+		user = models.WpUsers{UserLogin: username}
 		err = o.Read(&user, "UserLogin")
 	}
 	if err != nil {
@@ -80,6 +81,7 @@ func (s *WpUsersService) ExistUser(username string) (user models.WpUsers, err er
 	fmt.Println("success get user ", user)
 	return user, nil
 }
+
 //reset password
 func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, key string, err error) {
 	user, err = s.ExistUser(username)
@@ -94,12 +96,13 @@ func (s *WpUsersService) DoResetPassword(username string) (user models.WpUsers, 
 		return user, "", err
 	}
 	timeUnix := time.Now().Unix()
-	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" +  string(hashKey)
+	user.UserActivationKey = strconv.FormatInt(timeUnix, 10) + ":" + string(hashKey)
 	if _, err := o.Update(&user, "UserActivationKey"); err != nil {
 		return user, "", libraries.DbError(err)
 	}
-	return user, key,nil
+	return user, key, nil
 }
+
 //update user info
 func (s *WpUsersService) SaveUser(user models.WpUsers, cols ...string) error {
 	if _, err := o.Update(&user, cols...); err != nil {
@@ -126,6 +129,7 @@ func (s *WpUsersService) BlogList(limit, page int) (blogs []*models.WpPosts, tot
 	}
 	return blogs, total, nil
 }
+
 // blog detail by id
 func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPosts, err error) {
 	//wpUser := models.WpUsers{}
@@ -145,7 +149,8 @@ func (s *WpUsersService) BlogDetail(Id int64, postName string) (blog models.WpPo
 	}
 	return blog, nil
 }
-// blog tag list
+
+// blog show tag list
 func (s *WpUsersService) Tags(Id int64, tType string) (tags []*models.WpTerms, err error) {
 	qb, err := orm.NewQueryBuilder("mysql")
 	if err != nil {
@@ -157,10 +162,10 @@ func (s *WpUsersService) Tags(Id int64, tType string) (tags []*models.WpTerms, e
 	wpTerms := models.WpTerms{}
 	wpTermRelationships := models.WpTermRelationships{}
 	wpTermTaxonomy := models.WpTermTaxonomy{}
-	sql := qb.Select("t.term_id","t.name", "t.slug").
-		From(wpTermRelationships.TableName()+" AS r").
-		InnerJoin(wpTermTaxonomy.TableName()+" AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
-		InnerJoin(wpTerms.TableName()+" AS t").On("tt.term_id = t.term_id").
+	sql := qb.Select("t.term_id", "t.name", "t.slug").
+		From(wpTermRelationships.TableName() + " AS r").
+		InnerJoin(wpTermTaxonomy.TableName() + " AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
+		InnerJoin(wpTerms.TableName() + " AS t").On("tt.term_id = t.term_id").
 		Where("r.object_id = ?").And("tt.taxonomy = ?").String()
 	num, err := o.Raw(sql, Id, tType).QueryRows(&tags)
 	if err != nil {
@@ -170,4 +175,58 @@ func (s *WpUsersService) Tags(Id int64, tType string) (tags []*models.WpTerms, e
 		return nil, nil
 	}
 	return tags, nil
+}
+
+//all tag list
+func (s *WpUsersService) TagList(tType string) (tags []*models.Tags, err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	if err != nil {
+		return nil, err
+	}
+	if tType == "" {
+		tType = "post_tag"
+	}
+	wpTerms := models.WpTerms{}
+	wpTermRelationships := models.WpTermRelationships{}
+	wpTermTaxonomy := models.WpTermTaxonomy{}
+	sql := qb.Select("t.term_id", "t.name", "t.slug", "tt.count").
+		From(wpTermRelationships.TableName() + " AS r").
+		InnerJoin(wpTermTaxonomy.TableName() + " AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
+		InnerJoin(wpTerms.TableName() + " AS t").On("tt.term_id = t.term_id").
+		Where("tt.taxonomy = ?").String()
+	num, err := o.Raw(sql, tType).QueryRows(&tags)
+	if err != nil {
+		return nil, libraries.DbError(err)
+	}
+	if num == 0 {
+		return nil, nil
+	}
+	return tags, nil
+}
+
+// get blog by tag
+func (s *WpUsersService) BlogListByTag(slug string, limit, page int) (blogs []*models.WpPosts, total int, err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	if err != nil {
+		return nil, 0, err
+	}
+	wpTerms := models.WpTerms{}
+	wpTermRelationships := models.WpTermRelationships{}
+	wpTermTaxonomy := models.WpTermTaxonomy{}
+	wpPosts := models.WpPosts{}
+	sql := qb.Select("p.*").
+		From(wpPosts.TableName() + " AS p").
+		InnerJoin(wpTermRelationships.TableName() + " AS r").On("r.object_id = p.ID").
+		InnerJoin(wpTermTaxonomy.TableName() + " AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
+		InnerJoin(wpTerms.TableName() + " AS t").On("tt.term_id = t.term_id").
+		Where("p.post_status = ?").And("t.slug = ?").String()
+	num, err := o.Raw(sql, "publish", slug).QueryRows(&blogs)
+	total, _ = strconv.Atoi(strconv.FormatInt(num, 10))
+	if err != nil {
+		return nil, 0, libraries.DbError(err)
+	}
+	if total == 0 {
+		return nil, 0, nil
+	}
+	return blogs, total, nil
 }

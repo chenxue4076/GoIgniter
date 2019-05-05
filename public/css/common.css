@@ -1,2 +1,7 @@
 .red {color : #dc3545;}
+.gray{color:grey;}
 .green {}
+a, a:hover {color: #333333;}
+/* blog */
+.blog-list {margin-bottom:30px; padding: 10px;}
+.blog-list .contents{ max-height: 380px; overflow: hidden; margin-bottom: 20px;}

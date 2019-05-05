@@ -1,18 +1,18 @@
 <div class="container">
     <article>
         <header>
-            <h2>{{.Blog.PostTitle}}</h2>
-            {{if .Tags}}
-                <p class="tags">
-                    {{range $index, $tag := .Tags}}{{if gt $index 0}}, {{end}}<a href="/blog/tag/{{$tag.Slug}}">{{$tag.Name}}</a>{{end}}
-                </p>
-            {{end}}
+            <h4>{{.Blog.PostTitle}}</h4>
+            <time datetime="{{.Blog.PostDate}}">{{date .Blog.PostDate "Y-m-d"}}</time>
         </header>
         <section class="article-content">
             {{.Blog.PostContent | html}}
         </section>
         <footer>
-            {{date .Blog.PostDate "Y-m-d"}}
+            {{if .Tags}}
+                <p class="tags">
+                    {{range $index, $tag := .Tags}}{{if gt $index 0}}, {{end}}<a href="/blog/tag/{{$tag.Slug}}">{{$tag.Name}}</a>{{end}}
+                </p>
+            {{end}}
         </footer>
         <section>
 

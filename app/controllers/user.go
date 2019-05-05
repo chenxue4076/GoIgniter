@@ -1,19 +1,19 @@
 package controllers
 
 import (
-	"net/http"
-	"github.com/astaxie/beego/validation"
-	"log"
-	"strings"
-	"windigniter.com/app/services"
-	"github.com/astaxie/beego"
-	"fmt"
-	"windigniter.com/app/libraries"
-	"io/ioutil"
-	"strconv"
-	"time"
-	"golang.org/x/crypto/bcrypt"
 	"errors"
+	"fmt"
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/validation"
+	"golang.org/x/crypto/bcrypt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+	"windigniter.com/app/libraries"
+	"windigniter.com/app/services"
 )
 
 type UserController struct {
@@ -31,10 +31,10 @@ func (c *UserController) Login() {
 	}
 	c.LayoutSections["HtmlFoot"] = ""
 	lang := c.CurrentLang()
-	isAjax :=c.Ctx.Input.IsAjax()
+	isAjax := c.Ctx.Input.IsAjax()
 
 	//Post Data deal
-	if c.Ctx.Request.Method == http.MethodPost {	//POST Login deal
+	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
 		refer := c.Input().Get("refer")
 		username := strings.TrimSpace(c.Input().Get("username"))
 		password := strings.TrimSpace(c.Input().Get("password"))
@@ -78,7 +78,7 @@ func (c *UserController) Login() {
 				sessionUser := SessionUser{user.Id, user.UserLogin, user.UserNicename, user.UserEmail, user.UserRegistered, user.DisplayName}
 				c.SetSession("userInfo", sessionUser)
 				if remember != "" {
-					c.Ctx.SetCookie(beego.AppConfig.String("SessionName"), c.Ctx.Input.CruSession.SessionID(), 30*24*3600)	//存储30天
+					c.Ctx.SetCookie(beego.AppConfig.String("SessionName"), c.Ctx.Input.CruSession.SessionID(), 30*24*3600) //存储30天
 				}
 				/*skey := reflect.TypeOf(sessionUser)
 				sValue := reflect.ValueOf(sessionUser)
@@ -96,20 +96,20 @@ func (c *UserController) Login() {
 		//if len(username) < 6
 	}
 	refer := c.GetString("refer")
-	c.Data["Title"] = Translate(lang,"user.login")
+	c.Data["Title"] = Translate(lang, "user.login")
 	c.Data["Refer"] = refer
 }
 
-func (c *UserController) Register()  {
+func (c *UserController) Register() {
 	lang := c.CurrentLang()
 	//isAjax :=c.Ctx.Input.IsAjax()
-	c.Data["Title"] = Translate(lang,"user.register")
+	c.Data["Title"] = Translate(lang, "user.register")
 }
 
 func (c *UserController) LostPassword() {
 	c.LayoutSections["HtmlFoot"] = ""
-	lang := c.CurrentLang()//Post Data deal
-	isAjax :=c.Ctx.Input.IsAjax()
+	lang := c.CurrentLang() //Post Data deal
+	isAjax := c.Ctx.Input.IsAjax()
 	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
 		var result JsonOut
 		hasError := false
@@ -131,7 +131,7 @@ func (c *UserController) LostPassword() {
 			c.Data["Error"] = valid.Errors
 		}
 		//form verify success
-		if ! hasError {
+		if !hasError {
 			//whether has this user
 			db := new(services.WpUsersService)
 			user, resetKey, err := db.DoResetPassword(username)
@@ -143,19 +143,19 @@ func (c *UserController) LostPassword() {
 				c.Data["Error"] = valid.Errors
 			}
 			//get user info success
-			if ! hasError {
+			if !hasError {
 				//user exists, send an email to this user
 				subject := Translate(lang, "user.resetPassword") + " - " + Translate(lang, "common.siteName")
-				mailBody, e := ioutil.ReadFile("resources/lang/"+lang+"/mail/resetpassword.html")
+				mailBody, e := ioutil.ReadFile("resources/lang/" + lang + "/mail/resetpassword.html")
 				if e != nil {
 					hasError = true
 					result = JsonOut{true, JsonMessage{Translate(lang, e.Error()), "username"}, ""}
 					valid.SetError("", Translate(lang, e.Error()))
 					c.Data["Error"] = valid.Errors
 				}
-				if ! hasError {
+				if !hasError {
 					//replace var info
-					link := "http://" + c.Ctx.Request.Host + "/reset-password?key=" + resetKey + "&user="+user.UserLogin
+					link := "http://" + c.Ctx.Request.Host + "/reset-password?key=" + resetKey + "&user=" + user.UserLogin
 					fmt.Println("user reset password link :", link)
 					//send email
 					mailBodyString := fmt.Sprintf(string(mailBody), Translate(lang, "common.siteName"), link, link, Translate(lang, "common.siteName"))
@@ -166,7 +166,7 @@ func (c *UserController) LostPassword() {
 						valid.SetError("", Translate(lang, e.Error()))
 						c.Data["Error"] = valid.Errors
 					}
-					if ! hasError {
+					if !hasError {
 						result = JsonOut{false, JsonMessage{Translate(lang, "user.emailHasSend"), "username"}, ""}
 						c.Data["Success"] = Translate(lang, "user.emailHasSend")
 					}
@@ -179,13 +179,13 @@ func (c *UserController) LostPassword() {
 			c.ServeJSON()
 		}
 	}
-	c.Data["Title"] = Translate(lang,"user.lostPassword")
+	c.Data["Title"] = Translate(lang, "user.lostPassword")
 }
 
 func (c *UserController) ResetPassword() {
 	c.LayoutSections["HtmlFoot"] = ""
 	lang := c.CurrentLang()
-	isAjax :=c.Ctx.Input.IsAjax()
+	isAjax := c.Ctx.Input.IsAjax()
 	hasError := false
 	//Post Data deal
 	var username, key, password string
@@ -232,8 +232,8 @@ func (c *UserController) ResetPassword() {
 				c.Data["json"] = JsonOut{true, JsonMessage{Translate(lang, "common.invalidRequest"), ""}, ""}
 				c.ServeJSON()
 			}
-			c.Data["Title"] = Translate(lang,"common.invalidRequest")
-			c.Data["Content"] = Translate(lang,"common.serverDealError")
+			c.Data["Title"] = Translate(lang, "common.invalidRequest")
+			c.Data["Content"] = Translate(lang, "common.serverDealError")
 			c.Abort("Normal")
 		}
 		c.Data["Key"] = key
@@ -252,12 +252,12 @@ func (c *UserController) ResetPassword() {
 			valid.SetError("", Translate(lang, err.Error()))
 			c.Data["Error"] = valid.Errors
 		} else {
-			c.Data["Title"] = Translate(lang,"common.invalidRequest")
-			c.Data["Content"] = Translate(lang,"common.serverDealError")
+			c.Data["Title"] = Translate(lang, "common.invalidRequest")
+			c.Data["Content"] = Translate(lang, "common.serverDealError")
 			c.Abort("Normal")
 		}
 	}
-	if ! hasError {
+	if !hasError {
 		if c.Ctx.Request.Method == http.MethodPost {
 			if user.UserActivationKey == "" {
 				hasError = true
@@ -268,7 +268,7 @@ func (c *UserController) ResetPassword() {
 				valid.SetError("", Translate(lang, "user.verificationInformationHasExpired"))
 				c.Data["Error"] = valid.Errors
 			}
-			if ! hasError {
+			if !hasError {
 				//verify key
 				timeKey := strings.Split(user.UserActivationKey, ":")
 				timeString, hashActivationKey := timeKey[0], timeKey[1]
@@ -283,7 +283,7 @@ func (c *UserController) ResetPassword() {
 					valid.SetError("", Translate(lang, "user.verificationInformationHasExpired"))
 					c.Data["Error"] = valid.Errors
 				}
-				if ! hasError {
+				if !hasError {
 					pwderr := bcrypt.CompareHashAndPassword([]byte(hashActivationKey), []byte(key))
 					if pwderr != nil {
 						hasError = true
@@ -297,7 +297,7 @@ func (c *UserController) ResetPassword() {
 						valid.SetError("", Translate(lang, libraries.HashError(pwderr).Error()))
 						c.Data["Error"] = valid.Errors
 					}
-					if ! hasError {
+					if !hasError {
 						//set user password
 						newPassword, e := bcrypt.GenerateFromPassword([]byte(password), 0)
 						if e != nil {
@@ -309,7 +309,7 @@ func (c *UserController) ResetPassword() {
 							valid.SetError("", Translate(lang, libraries.HashError(e).Error()))
 							c.Data["Error"] = valid.Errors
 						}
-						if ! hasError {
+						if !hasError {
 							user.UserPass = string(newPassword)
 							user.UserActivationKey = ""
 							err := db.SaveUser(user, "UserPass", "UserActivationKey")
@@ -322,7 +322,7 @@ func (c *UserController) ResetPassword() {
 								valid.SetError("", Translate(lang, libraries.DbError(err).Error()))
 								c.Data["Error"] = valid.Errors
 							}
-							if ! hasError {
+							if !hasError {
 								refer := c.Input().Get("refer")
 								if isAjax {
 									c.Data["json"] = JsonOut{false, JsonMessage{Translate(lang, "common.success"), ""}, refer}
@@ -339,12 +339,12 @@ func (c *UserController) ResetPassword() {
 	}
 
 	c.Data["Refer"] = beego.URLFor("UserController.Login")
-	c.Data["Title"] = Translate(lang,"user.resetPassword")
+	c.Data["Title"] = Translate(lang, "user.resetPassword")
 	c.Data["User"] = user
 }
 
 func (c *UserController) Logout() {
-	isAjax :=c.Ctx.Input.IsAjax()
+	isAjax := c.Ctx.Input.IsAjax()
 	//Post Data deal
 	if c.Ctx.Request.Method == http.MethodPost { //POST Login deal
 		lang := c.CurrentLang()
