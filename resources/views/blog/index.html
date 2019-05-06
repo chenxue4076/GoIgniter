@@ -1,16 +1,23 @@
 <div class="container">
     <div class="row">
         <div class="col-md-9">
+            {{if .Tag}}
+                <h4 class="blog-tag-title">{{i18n .Lang "blog.Tags" }}:{{.Tag.Name}} </h4>
+            {{end}}
             {{if .Blogs}}
                 {{range $_, $blog := .Blogs}}
                     <article class="blog-list">
                         <header>
-                            <h4><a href="/blog{{wpUrlFormat $blog.PostDate $blog.PostName $blog.Id $.PermalinkStructure}}">{{$blog.PostTitle}}</a></h4>
+                            <h4>
+                                <a href="/blog{{wpUrlFormat $blog.PostDate $blog.PostName $blog.Id $.PermalinkStructure}}">
+                                    <span class="oi oi-link-intact" title="link-intact" aria-hidden="true"></span> {{$blog.PostTitle}}
+                                </a>
+                            </h4>
                             <time class="gray" datetime="{{$blog.PostDate}}"><span class="oi oi-clock" title="clock" aria-hidden="true"></span> <em>{{date $blog.PostDate $.DateFormat }}</em></time>
                         </header>
                         <section class="contents">{{$blog.PostContent | html }}</section>
                         <footer>
-                            <a class="btn btn-dark" href="/blog{{wpUrlFormat $blog.PostDate $blog.PostName $blog.Id $.PermalinkStructure}}" role="button">Learn more</a>
+                            <a class="btn btn-dark" href="/blog{{wpUrlFormat $blog.PostDate $blog.PostName $blog.Id $.PermalinkStructure}}" role="button">{{i18n $.Lang "blog.LearnMore"}}</a>
                         </footer>
                     </article>
                 {{end}}
@@ -18,16 +25,7 @@
             {{.Pagination | html}}
         </div>
         <section class="col-md">
-            {{if .Tags}}
-                <div class="panel panel-primary">
-                    <h3 class="panel-heading">{{i18n .Lang "blog.Tags" }}</h3>
-                    <ol class="list-group">
-                        {{range $_, $tag := .Tags}}
-                            <li class="list-group-item"><a href="/blog/tag/{{$tag.Slug}}"> {{$tag.Name}}({{$tag.Count}})</a></li>
-                        {{end}}
-                    </ol>
-                </div>
-            {{end}}
+            {{template "blog/side_bar.html" .}}
         </section>
     </div>
 

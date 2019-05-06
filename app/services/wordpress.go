@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql" // import your used driver
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
+	"sort"
 	"strconv"
 	"time"
 	"windigniter.com/app/libraries"
@@ -189,7 +190,7 @@ func (s *WpUsersService) TagList(tType string) (tags []*models.Tags, err error) 
 	wpTerms := models.WpTerms{}
 	wpTermRelationships := models.WpTermRelationships{}
 	wpTermTaxonomy := models.WpTermTaxonomy{}
-	sql := qb.Select("t.term_id", "t.name", "t.slug", "tt.count").
+	sql := qb.Select("distinct t.term_id", "t.name", "t.slug", "tt.count").
 		From(wpTermRelationships.TableName() + " AS r").
 		InnerJoin(wpTermTaxonomy.TableName() + " AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
 		InnerJoin(wpTerms.TableName() + " AS t").On("tt.term_id = t.term_id").
@@ -204,13 +205,23 @@ func (s *WpUsersService) TagList(tType string) (tags []*models.Tags, err error) 
 	return tags, nil
 }
 
+//获取terms
+func (s *WpUsersService) TagInfo(slug string) (tag models.WpTerms, err error) {
+	wpTerms := models.WpTerms{}
+	qs := o.QueryTable(wpTerms.TableName()).Filter("slug", slug)
+	err = qs.RelatedSel().One(&tag)
+	if err != nil {
+		return tag, libraries.DbError(err)
+	}
+	return tag, nil
+}
+
 // get blog by tag
-func (s *WpUsersService) BlogListByTag(slug string, limit, page int) (blogs []*models.WpPosts, total int, err error) {
+func (s *WpUsersService) BlogListByTermId(termId int64, limit, page int) (blogs []*models.WpPosts, total int, err error) {
 	qb, err := orm.NewQueryBuilder("mysql")
 	if err != nil {
 		return nil, 0, err
 	}
-	wpTerms := models.WpTerms{}
 	wpTermRelationships := models.WpTermRelationships{}
 	wpTermTaxonomy := models.WpTermTaxonomy{}
 	wpPosts := models.WpPosts{}
@@ -218,9 +229,8 @@ func (s *WpUsersService) BlogListByTag(slug string, limit, page int) (blogs []*m
 		From(wpPosts.TableName() + " AS p").
 		InnerJoin(wpTermRelationships.TableName() + " AS r").On("r.object_id = p.ID").
 		InnerJoin(wpTermTaxonomy.TableName() + " AS tt").On("r.term_taxonomy_id = tt.term_taxonomy_id").
-		InnerJoin(wpTerms.TableName() + " AS t").On("tt.term_id = t.term_id").
-		Where("p.post_status = ?").And("t.slug = ?").String()
-	num, err := o.Raw(sql, "publish", slug).QueryRows(&blogs)
+		Where("p.post_status = ?").And("tt.term_id = ?").String()
+	num, err := o.Raw(sql, "publish", termId).QueryRows(&blogs)
 	total, _ = strconv.Atoi(strconv.FormatInt(num, 10))
 	if err != nil {
 		return nil, 0, libraries.DbError(err)
@@ -229,4 +239,64 @@ func (s *WpUsersService) BlogListByTag(slug string, limit, page int) (blogs []*m
 		return nil, 0, nil
 	}
 	return blogs, total, nil
+}
+
+// get blog by date
+func (s *WpUsersService) BlogListByDate(year string, month string, perPage int, page int) (blogs []*models.WpPosts, total int, err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	if err != nil {
+		return nil, 0, err
+	}
+	wpPosts := models.WpPosts{}
+	sql := qb.Select("*").From(wpPosts.TableName()).Where("post_status = ?").And("LEFT(post_date, 7) = ?").String()
+	num, err := o.Raw(sql, "publish", year+"-"+month ).QueryRows(&blogs)
+	total, _ = strconv.Atoi(strconv.FormatInt(num, 10))
+	if err != nil {
+		return nil, 0, libraries.DbError(err)
+	}
+	if total == 0 {
+		return nil, 0, nil
+	}
+	return blogs, total, nil
+}
+
+// blog ArchiveList
+func (s *WpUsersService) ArchiveList() (archives []models.Archives, err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	if err != nil {
+		return nil, err
+	}
+	posts := []*models.WpPosts{}
+	wpPosts := models.WpPosts{}
+	sql := qb.Select("post_date").From(wpPosts.TableName()).Where("post_status = ?").String()
+	num, err := o.Raw(sql, "publish").QueryRows(&posts)
+	if err != nil {
+		return nil, libraries.DbError(err)
+	}
+	if num == 0 {
+		return nil, nil
+	}
+	mapDate := make(map[int] models.Archives)
+	for _, post := range posts {
+		monthItem, _ := strconv.Atoi(strconv.Itoa(post.PostDate.Year()) + fmt.Sprintf("%02d",int(post.PostDate.Month())))
+		if mapDate[monthItem] != (models.Archives{}) {
+			temp := mapDate[monthItem]
+			temp.Count++
+			mapDate[monthItem] = temp
+		} else {
+			mapDate[monthItem] = models.Archives{Year: post.PostDate.Year(), MonthName:post.PostDate.Month(), Month: fmt.Sprintf("%02d",int(post.PostDate.Month())), Count:1}
+		}
+	}
+	var keys []int
+	for k := range mapDate {
+		keys = append(keys, k)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(keys)))
+	fmt.Println(keys)
+	for _, k := range keys {
+		archives = append(archives, mapDate[k])
+	}
+	return archives, nil
+
+
 }

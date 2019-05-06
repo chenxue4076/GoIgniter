@@ -164,6 +164,12 @@ type Tags struct {
 	Slug   string
 	Count  int64
 }
+type Archives struct {
+	Year	int
+	MonthName	time.Month
+	Month	string
+	Count	int
+}
 
 func init() {
 	//register models

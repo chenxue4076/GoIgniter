@@ -27,7 +27,10 @@ func init() {
 	beego.Router("/member/u_:username([\\w]+)", &controllers.MemberController{}, "get:Index")
 
 	beego.Router("/blog/index", &controllers.BlogController{}, "*:Index")
-	beego.Router("/blog/tag/:slug:string", &controllers.BlogController{}, "get:Tag")
+	beego.Router("/blog/tag/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/category/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/category/:pSlug:string/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})", &controllers.BlogController{}, "get:Index")
 	beego.Router("/blog/archives/:id:int", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})/:day([0-9]{2})/:hour([0-9]{2})/:minute([0-9]{2})/:second([0-9]{2})/:postName", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})/:day([0-9]{2})/:hour([0-9]{2})/:minute([0-9]{2})/:postName", &controllers.BlogController{}, "get:Show")

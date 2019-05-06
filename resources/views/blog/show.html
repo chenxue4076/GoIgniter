@@ -1,21 +1,24 @@
 <div class="container">
-    <article>
-        <header>
-            <h4>{{.Blog.PostTitle}}</h4>
-            <time datetime="{{.Blog.PostDate}}">{{date .Blog.PostDate "Y-m-d"}}</time>
-        </header>
-        <section class="article-content">
-            {{.Blog.PostContent | html}}
+    <div class="row">
+        <article class="col-md-9">
+            <header>
+                <h4>{{.Blog.PostTitle}}</h4>
+                <time class="gray" datetime="{{.Blog.PostDate}}"><span class="oi oi-clock" title="clock" aria-hidden="true"></span> <em>{{date .Blog.PostDate $.DateFormat}}</em></time>
+            </header>
+            <section class="article-content">
+                {{.Blog.PostContent | html}}
+            </section>
+            <footer>
+                {{if .Tags}}
+                    <p class="tags">
+                        <span class="oi oi-tags" title="tags" aria-hidden="true"></span>
+                        {{range $index, $tag := .Tags}}{{if gt $index 0}}, {{end}}<a href="/blog/tag/{{$tag.Slug}}">{{$tag.Name}}</a>{{end}}
+                    </p>
+                {{end}}
+            </footer>
+        </article>
+        <section class="col-md">
+            {{template "blog/side_bar.html" .}}
         </section>
-        <footer>
-            {{if .Tags}}
-                <p class="tags">
-                    {{range $index, $tag := .Tags}}{{if gt $index 0}}, {{end}}<a href="/blog/tag/{{$tag.Slug}}">{{$tag.Name}}</a>{{end}}
-                </p>
-            {{end}}
-        </footer>
-        <section>
-
-        </section>
-    </article>
+    </div>
 </div>

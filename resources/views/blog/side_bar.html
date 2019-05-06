@@ -1,0 +1,41 @@
+{{if .TagList}}
+    <div class="card border-light">
+        <div class="card-header">{{i18n .Lang "blog.Tags" }}</div>
+        <div class="tag-cloud">
+            {{range $_, $tag := .TagList}}
+                <a class="bg-light" href="/blog/tag/{{$tag.Slug}}">
+                    <span class="oi oi-link-intact" title="link-intact" aria-hidden="true"></span> {{$tag.Name}}({{$tag.Count}})
+                </a>
+            {{end}}
+        </div>
+    </div>
+{{end}}
+{{if .ArchiveList}}
+    <div class="card border-light">
+        <div class="card-header">{{i18n .Lang "blog.Archives" }}</div>
+        <ul class="list-group list-group-flush">
+            {{range $_, $archive := .ArchiveList}}
+                <li class="list-group-item">
+                    <a class="card-link" href="/blog/{{$archive.Year}}/{{$archive.Month}}/">
+                        <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span> {{$archive.MonthName}} {{$archive.Year}}
+                    </a>
+                    ({{$archive.Count}})
+                </li>
+            {{end}}
+        </ul>
+    </div>
+{{end}}
+{{if .CategoryList}}
+    <div class="card border-light">
+        <div class="card-header">{{i18n .Lang "blog.Categories" }}</div>
+        <ul class="list-group list-group-flush">
+            {{range $_, $category := .CategoryList}}
+                <li class="list-group-item">
+                    <a class="card-link" href="/blog/category/{{$category.Slug}}">
+                        <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span> {{$category.Name | html}}({{$category.Count}})
+                    </a>
+                </li>
+            {{end}}
+        </ul>
+    </div>
+{{end}}
