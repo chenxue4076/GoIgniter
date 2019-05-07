@@ -292,7 +292,7 @@ func (s *WpUsersService) ArchiveList() (archives []models.Archives, err error) {
 		keys = append(keys, k)
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(keys)))
-	fmt.Println(keys)
+	//fmt.Println(keys)
 	for _, k := range keys {
 		archives = append(archives, mapDate[k])
 	}

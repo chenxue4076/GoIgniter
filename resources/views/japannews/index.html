@@ -1,13 +1,12 @@
-<div class="container japan-news-list">
+<div class="container">
     {{if .NewsList}}
         {{range $_, $news := .NewsList}}
-            <article>
+            <article class="japan-news-list">
                 <header>
-                    {{/*<h2><a href="{{urlfor "JapanNewsController.Show" "id" $news.Id}}">{{$news.TitleRuby | html}}</a></h2>*/}}
-                    <h2><a href="/japannews/{{$news.Id}}">{{$news.TitleRuby | html}}</a></h2>
+                    <h4><a href="/japannews/{{$news.Id}}">{{$news.TitleRuby | html}}</a></h4>
                 </header>
                 <section>{{$news.Content | html}}</section>
-                <footer><time>{{date $news.Pubdate "Y-m-d"}}</time></footer>
+                <footer><time class="gray" datetime="{{$news.Pubdate}}"><span class="oi oi-clock" title="clock" aria-hidden="true"></span> <em>{{date $news.Pubdate "Y-m-d"}}</em></time></footer>
             </article>
         {{end}}
     {{end}}
