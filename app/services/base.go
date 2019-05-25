@@ -1,18 +1,17 @@
 package services
 
 import (
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql" // import your used driver
-	"github.com/astaxie/beego"
 )
 
 type BaseService struct {
-
 }
 
 var o orm.Ormer
 
-func init()  {
+func init() {
 	//fmt.Println("service base init")
 	if beego.AppConfig.String("RunMode") == beego.DEV {
 		orm.Debug = true
@@ -26,4 +25,3 @@ func init()  {
 	o = orm.NewOrm()
 	o.Using("default")
 }
-

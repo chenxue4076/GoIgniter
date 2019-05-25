@@ -1,10 +1,10 @@
 package routers
 
 import (
-	"windigniter.com/app/controllers"
-	"github.com/astaxie/beego"
 	"encoding/gob"
+	"github.com/astaxie/beego"
 	"time"
+	"windigniter.com/app/controllers"
 )
 
 func init() {
@@ -17,7 +17,7 @@ func init() {
 
 	//route map
 	beego.Router("/", &controllers.MainController{}, "get:Index")
-    //beego.Router("/", &controllers.JapanNewsController{}, "get:Index")
+	//beego.Router("/", &controllers.JapanNewsController{}, "get:Index")
 	//beego.Router("/login", &controllers.UserController{}, "get:LoginForm;post:LoginPost")
 	beego.Router("/login", &controllers.UserController{}, "get,post:Login")
 	beego.Router("/logout", &controllers.UserController{}, "post:Logout")
@@ -27,6 +27,10 @@ func init() {
 	beego.Router("/member/u_:username([\\w]+)", &controllers.MemberController{}, "get:Index")
 
 	beego.Router("/blog/index", &controllers.BlogController{}, "*:Index")
+	beego.Router("/blog/tag/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/category/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/category/:pSlug:string/:slug:string", &controllers.BlogController{}, "get:Index")
+	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})", &controllers.BlogController{}, "get:Index")
 	beego.Router("/blog/archives/:id:int", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})/:day([0-9]{2})/:hour([0-9]{2})/:minute([0-9]{2})/:second([0-9]{2})/:postName", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog/:year([0-9]{4})/:month([0-9]{2})/:day([0-9]{2})/:hour([0-9]{2})/:minute([0-9]{2})/:postName", &controllers.BlogController{}, "get:Show")
@@ -37,6 +41,8 @@ func init() {
 	beego.Router("/blog/:postName:string", &controllers.BlogController{}, "get:Show")
 	beego.Router("/blog", &controllers.BlogController{}, "get:Index")
 
+
+	beego.Router("/wechat/japan/news", &controllers.JapanNewsController{}, "get:Index")
 
 	beego.Router("/japannews/content", &controllers.JapanNewsController{}, "*:NewsContent")
 
@@ -50,5 +56,5 @@ func init() {
 	beego.Router("/japannews/show", &controllers.JapanNewsController{}, "*:Show")
 	beego.AutoRouter(&controllers.JapanNewsController{})
 	beego.AutoRouter(&controllers.MemberController{})
-    //beego.Include(&controllers.UserController{})
+	//beego.Include(&controllers.UserController{})
 }

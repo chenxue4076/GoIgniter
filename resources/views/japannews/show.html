@@ -1,57 +1,62 @@
 <section class="container">
-    <article class="article-detail">
-        <header>
-            <h2>{{.News.TitleRuby | html}}</h2>
+    <div class="row">
+        <article class="article-detail col-md-7">
+            <header>
+                <h2>{{.News.TitleRuby | html}}</h2>
             {{date .News.Pubdate "Y-m-d"}}
-        </header>
-        <details open="open">
-            <summary>{{.News.DescribeRuby | html}}</summary>
+            </header>
+            <hr />
+            <details open="open">
+                <summary>{{.News.DescribeRuby | html}}</summary>
             {{/*{{if .News.Featured}}<img src="{{.News.Featured}}" style="max-height: 400px;" /> {{end}}*/}}
-            <div class="">
+                <div class="">
                 {{.News.Content | html}}
-            </div>
-        </details>
-        <footer>
+                </div>
+            </details>
+            <footer>
             {{if .News.Media}}
-                {{if eq (substr .News.Media 0 4) "http"}}
-                    <audio controls="controls" loop="loop">
-                        {{if contains (lower .News.Media) ".ogg"}}
-                            <source src="{{.News.Media}}" type="audio/ogg">
-                        {{else if contains (lower .News.Media) ".aac"}}
-                            <source src="{{.News.Media}}" type="audio/mp4">
-                        {{else}}
-                            <source src="{{.News.Media}}" type="audio/mpeg">
-                        {{end}}
-                        Your browser does not support the audio tag.
-                    </audio>
+            {{if eq (substr .News.Media 0 4) "http"}}
+                <audio controls="controls" loop="loop">
+                {{if contains (lower .News.Media) ".ogg"}}
+                    <source src="{{.News.Media}}" type="audio/ogg">
+                {{else if contains (lower .News.Media) ".aac"}}
+                    <source src="{{.News.Media}}" type="audio/mp4">
                 {{else}}
-                    <audio id="my-video" class="video-js" controls preload="auto" width="300px" height="100px" poster="" data-setup="{}">
-                        <source src="https://nhks-vh.akamaihd.net/i/news/easy/{{.News.NewsId}}.mp4/master.m3u8" type='application/x-mpegURL'>
-                        <p class="vjs-no-js">
-                            To view this video please enable JavaScript, and consider upgrading to a web browser that
-                            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
-                        </p>
-                    </audio>
+                    <source src="{{.News.Media}}" type="audio/mpeg">
                 {{end}}
-                <hr />
+                    Your browser does not support the audio tag.
+                </audio>
+            {{else}}
+                <audio id="my-video" class="video-js" controls preload="auto" width="300px" height="100px" poster="" data-setup="{}">
+                    <source src="https://nhks-vh.akamaihd.net/i/news/easy/{{.News.NewsId}}.mp4/master.m3u8" type='application/x-mpegURL'>
+                    <p class="vjs-no-js">
+                        To view this video please enable JavaScript, and consider upgrading to a web browser that
+                        <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                    </p>
+                </audio>
             {{end}}
+            {{end}}
+            </footer>
+        </article>
+        <section class="col-md-5">
             {{if .Dict}}
-                <details>
+                <details open="open">
                     <summary>{{i18n .Lang "common.dictionary"}}</summary>
                     <ul>
-                        {{range $k, $v := .Dict}}
-                            <li id="dic_{{$k}}">
-                                <strong>{{range $kk, $dict := $v}}{{if eq $kk 0}}{{$dict.hyouki}}{{end}}{{end}}</strong>
-                                <ol>
-                                {{range $kk, $dict := $v}}
-                                    <li>{{$dict.def | html}}</li>
-                                {{end}}
-                                </ol>
-                            </li>
-                        {{end}}
+                    {{range $k, $v := .Dict}}
+                        <li id="dic_{{$k}}">
+                            <strong>{{range $kk, $dict := $v}}{{if eq $kk 0}}{{$dict.hyouki}}{{end}}{{end}}</strong>
+                            <ol>
+                            {{range $kk, $dict := $v}}
+                                <li>{{$dict.def | html}}</li>
+                            {{end}}
+                            </ol>
+                        </li>
+                    {{end}}
                     </ul>
                 </details>
             {{end}}
-        </footer>
-    </article>
+        </section>
+    </div>
+
 </section>

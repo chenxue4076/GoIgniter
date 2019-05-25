@@ -1,2 +1,12 @@
 .red {color : #dc3545;}
+.gray{color:grey;}
 .green {}
+a, a:hover {color: #333333;}
+/* blog */
+.blog-tag-title {padding: 30px 0 10px; margin-bottom: 30px;}
+.blog-list {margin-bottom:30px; padding: 10px;}
+.blog-list .contents{ max-height: 380px; overflow: hidden; margin-bottom: 20px;}
+.tag-cloud a {font-size: 14px !important; margin-right: 5px; padding: 3px 7px; margin-bottom: 10px; display: inline-block;}
+
+.japan-news-list { margin-bottom: 30px; padding: 10px;}
+/*.japan-news-list section img { max-height: 200px;}*/

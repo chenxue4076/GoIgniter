@@ -1,12 +1,12 @@
 package main
 
 import (
-	_ "windigniter.com/routers"
 	"github.com/astaxie/beego"
 	"github.com/beego/i18n"
-		"html"
-	"windigniter.com/app/libraries"
+	"html"
 	"strings"
+	"windigniter.com/app/libraries"
+	_ "windigniter.com/routers"
 )
 
 func main() {
@@ -25,4 +25,3 @@ func main() {
 
 	beego.Run()
 }
-

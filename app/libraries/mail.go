@@ -17,6 +17,6 @@ func SendMail(to, subject, body, mailType string) error {
 	}
 	msg := []byte("To: " + to + "\r\nFrom: " + beego.AppConfig.String("MailUserName") + "\r\nSubject: " + subject + "\r\n" + contentType + "\r\n\r\n" + body)
 	sendTo := strings.Split(to, ";")
-	err := smtp.SendMail(host + ":" + beego.AppConfig.String("MailPort"), auth, beego.AppConfig.String("MailAccount"), sendTo, msg)
+	err := smtp.SendMail(host+":"+beego.AppConfig.String("MailPort"), auth, beego.AppConfig.String("MailAccount"), sendTo, msg)
 	return err
 }
