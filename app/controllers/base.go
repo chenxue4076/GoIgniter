@@ -60,9 +60,9 @@ func (c *BaseController) Prepare() {
 	c.LayoutSections["Scripts"] = controller + "/layout_scripts." + c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
-	c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerName")
-	if c.Ctx.Input.Scheme() == "https" {
-		c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerNameHttps")
+	c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerNameHttps")
+	if c.Ctx.Input.Scheme() == "http" {
+		c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerName")
 	}
 	//page data
 	c.Data["Lang"] = c.CurrentLang()
