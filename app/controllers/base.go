@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/beego/i18n"
 	"html/template"
@@ -64,6 +65,7 @@ func (c *BaseController) Prepare() {
 	if c.Ctx.Input.Scheme() == "http" {
 		c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerName")
 	}
+	fmt.Println(c.Ctx.Input.Scheme())
 	//page data
 	c.Data["Lang"] = c.CurrentLang()
 
