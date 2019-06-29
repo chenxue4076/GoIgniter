@@ -9,9 +9,9 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
-    <link rel="shortcut icon" href="http://img.windigniter.com/web/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="http://img.windigniter.com/web/bootstrap/4.1.3/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="http://img.windigniter.com/web/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" />
+    <link rel="shortcut icon" href="//{{.StaticServerName}}/web/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="//{{.StaticServerName}}/web/bootstrap/4.1.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//{{.StaticServerName}}/web/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" />
     <link rel="stylesheet" href="/public/css/common.css" />
     {{.HeaderMeta }}
     {{if eq .RunMode "prod"}}
@@ -32,10 +32,10 @@
     {{.LayoutContent}}
 
     {{.HtmlFoot}}
-    <script src="http://img.windigniter.com/web/jquery/3.1.1/jquery.min.js"></script>
-    <script src="http://img.windigniter.com/web/popper/popper.1.12.9.min.js"></script>
-    <script src="http://img.windigniter.com/web/bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
-    <script src="http://img.windigniter.com/web/vue/2.5.1/vue.js"></script>
+    <script src="//{{.StaticServerName}}/web/jquery/3.1.1/jquery.min.js"></script>
+    <script src="//{{.StaticServerName}}/web/popper/popper.1.12.9.min.js"></script>
+    <script src="//{{.StaticServerName}}/web/bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
+    <script src="//{{.StaticServerName}}/web/vue/2.5.1/vue.js"></script>
     <script src="/public/js/common.js"></script>
     {{.Scripts }}
 </body>

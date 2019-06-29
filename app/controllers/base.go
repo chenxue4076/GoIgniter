@@ -43,6 +43,7 @@ func (c *BaseController) Prepare() {
 	//multi language load
 	once.Do(libraries.LoadLangs)
 
+
 	//page params
 	c.TplExt = "html"
 	controllerPre, actionPre := c.GetControllerAndAction()
@@ -59,6 +60,10 @@ func (c *BaseController) Prepare() {
 	c.LayoutSections["Scripts"] = controller + "/layout_scripts." + c.TplExt
 	c.LayoutSections["SideBar"] = ""
 
+	c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerName")
+	if c.Ctx.Input.Scheme() == "https" {
+		c.Data["StaticServerName"] = beego.AppConfig.String("StaticServerNameHttps")
+	}
 	//page data
 	c.Data["Lang"] = c.CurrentLang()
 
