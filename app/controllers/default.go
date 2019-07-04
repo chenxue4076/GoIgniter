@@ -10,4 +10,12 @@ func (c *MainController) Index() {
 	//c.Data["Website"] = "localhost"
 	//c.Data["Email"] = "windigniter@163.com"
 	c.TplName = "index.tpl"
+	c.Layout = ""
+	c.LayoutSections = make(map[string]string)
+	c.LayoutSections["HeaderMeta"] = ""
+	c.LayoutSections["HtmlHead"] = ""
+	c.LayoutSections["HtmlFoot"] = ""
+	c.LayoutSections["Scripts"] = ""
+	c.LayoutSections["SideBar"] = ""
+
 }
