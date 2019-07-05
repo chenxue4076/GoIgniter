@@ -9,7 +9,7 @@ import (
 
 type BookNote struct {
 	Id        int64     `orm:"column(id);auto"` //The primary key id
-	AuthorId  *WpUsers  `orm:"default(0);index;rel(fk);on_delete(do_nothing)"`
+	AuthorId  *WpUsers  `orm:"column(author_id);default(0);index;rel(fk);on_delete(do_nothing)"`
 	ClassName string    `orm:"size(50)"` //enum book_note,net
 	Note      string    `orm:"type(text)"`
 	Source    string    `orm:"size(125)"`
