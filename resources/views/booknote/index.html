@@ -3,7 +3,7 @@
         {{range $_, $booknote := .BookNoteList}}
             <article class="book-note-list">
                 <section>{{$booknote.Note | html}}</section>
-                <p class="text-right">{{$booknote.source}}</p>
+                <p class="text-right">{{$booknote.Source}}</p>
                 <footer>
                     <time class="gray" datetime="{{$booknote.CreatedAt}}">
                         <span class="oi oi-clock" title="clock" aria-hidden="true"></span> 
