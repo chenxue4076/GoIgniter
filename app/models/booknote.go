@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"time"
 )
 
 type BookNote struct {

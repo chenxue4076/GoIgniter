@@ -1,0 +1,17 @@
+<div class="container">
+    {{if .BookNoteList}}
+        {{range $_, $booknote := .BookNoteList}}
+            <article class="book-note-list">
+                <section>{{$booknote.Note | html}}</section>
+                <p class="text-right">{{$booknote.source}}</p>
+                <footer>
+                    <time class="gray" datetime="{{$booknote.CreatedAt}}">
+                        <span class="oi oi-clock" title="clock" aria-hidden="true"></span> 
+                        <em>{{date $booknote.CreatedAt "Y-m-d"}}</em>
+                    </time>
+                </footer>
+            </article>
+        {{end}}
+    {{end}}
+    {{.Pagination | html}}
+</div>

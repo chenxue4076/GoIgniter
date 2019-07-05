@@ -26,6 +26,9 @@ func init() {
 	beego.Router("/reset-password", &controllers.UserController{}, "get,post:ResetPassword")
 	beego.Router("/member/u_:username([\\w]+)", &controllers.MemberController{}, "get:Index")
 
+	
+	beego.Router("/booknote", &controllers.BookNoteController{}, "get:Index")
+
 	beego.Router("/blog/index", &controllers.BlogController{}, "*:Index")
 	beego.Router("/blog/tag/:slug:string", &controllers.BlogController{}, "get:Index")
 	beego.Router("/blog/category/:slug:string", &controllers.BlogController{}, "get:Index")
